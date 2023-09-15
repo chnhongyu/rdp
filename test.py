@@ -1,5 +1,9 @@
 import pandas as pd
+# import openpyxl
+# import sys
+# print(sys.executable)
 
-data = {'A':[1,2,3,4,5], 'B':[2,5,7,8,9]}
-df= pd.DataFrame(data)
-print(df)
+all_sheets = pd.read_excel('Running Dinner dataset 2022.xlsx',sheet_name=None)
+for sheet_name, sheet_df in all_sheets.items():
+    print(f"sheet_name {sheet_name} data：")
+    print(sheet_df)
