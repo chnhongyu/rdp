@@ -1,0 +1,11 @@
+- What is Discrete improving search?
+Algoritme, neighbourhoud solutions -> minimale verschillen, stapsgewijs
+
+- Why is it important for you to know about Discrete improving search?
+Verkrijgen van oplossing binnen afzienbare tijd, niet gegarandeerd optimaal 
+
+- When do you need to consider applying Discrete improving search?
+Als probleem niet exact oplosbaar is -> NP-hard
+
+- Which guarantee on solution quality can you give when you apply Discrete improving search?
+Lokaal optimaal, 
