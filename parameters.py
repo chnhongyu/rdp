@@ -1,7 +1,5 @@
 import pandas as pd
-# import openpyxl
-# import sys
-# print(sys.executable)
+import pulp as pp
 
 #inlezen data
 Dataset = 'Running Dinner dataset 2021.xlsx'
@@ -14,6 +12,7 @@ Tafelgenoot = pd.read_excel(Dataset, sheet_name = 'Tafelgenoot vorig jaar', head
 
 #inlezen input
 Dataset2 = 'Running Dinner eerste oplossing 2021.xlsx'
+df2 = pd.read_excel(Dataset2)
 
 
 # verzamelingen
@@ -21,7 +20,19 @@ A = Adressen['Huisadres']
 D = Bewoners['Bewoner']
 E = Paar[['Bewoner1', 'Bewoner2']]
 G = ['Voor', 'Hoofd', 'Na']
-print(A, D, E, G)
+# print(A, D, E, G)
 
 #parameters
-k_a = 
+# ka = ?
+l_a = Adressen['Min groepsgrootte']
+u_a = Adressen['Max groepsgrootte']
+h_ad = Bewoners[ ['Huisadres','Bewoner'] ]
+v_ag = Adressen[ ['Huisadres','Voorkeur gang'] ]
+vg_ag = Kookte[ ['Huisadres','Gang'] ]
+vt_d1d2 = Tafelgenoot
+b_d1d2 = Buren
+
+#Er moet gelden dat
+
+#elk deelnemer woont op precies een adres, sum(a,h_ad)=1 for all d
+
