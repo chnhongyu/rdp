@@ -12,10 +12,11 @@ Kookte = pd.read_excel(Dataset, sheet_name = 'Kookte vorig jaar', header = 1)
 Tafelgenoot = pd.read_excel(Dataset, sheet_name = 'Tafelgenoot vorig jaar', header = 1)
 
 # verzamelingen
-#A = all_sheets['Adressen']['Huisadres']
-#D = all_sheets['Bewoners']['Bewoner']
-#E = all_sheets['Paar blijft bij elkaar'][['Bewoner1', 'Bewoner2']]
-#G = list('Voor', 'Hoofd', 'Na')
+A = Adressen['Huisadres']
+D = Bewoners['Bewoner']
+E = Paar[['Bewoner1', 'Bewoner2']]
+G = ['Voor', 'Hoofd', 'Na']
+print(A, D, E, G)
 
 # parameters
 #La = all_sheets['Adressen'][['Huisadres', 'Min groepsgrootte']]
