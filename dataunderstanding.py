@@ -14,4 +14,10 @@ for index, row in df.iterrows():
     if kookt in kook_dict:
         kook_dict[kookt].append(huisadres)
 
-print(kook_dict)
+voor = kook_dict['Voor']
+hoofd = kook_dict['Hoofd']
+na = kook_dict['Na']
+# print(voor)
+# print(hoofd)
+# print(na)
+print(len(voor),len(hoofd),len(na))
