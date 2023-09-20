@@ -16,8 +16,12 @@ A = Adressen['Huisadres']
 D = Bewoners['Bewoner']
 E = Paar[['Bewoner1', 'Bewoner2']]
 G = ['Voor', 'Hoofd', 'Na']
-print(A, D, E, G)
 
 # parameters
-#La = all_sheets['Adressen'][['Huisadres', 'Min groepsgrootte']]
-#Ua = all_sheets['Adressen'][['Huisadres', 'Max groepsgrootte']]
+l_a = Adressen['Min groepsgrootte']
+u_a = Adressen['Max groepsgrootte']
+h_ad = Bewoners[['Huisadres','Bewoner']]
+v_ag = Adressen[['Huisadres','Voorkeur gang']]
+vg_ag = Kookte[['Huisadres','Gang']]
+
+# constraints
