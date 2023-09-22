@@ -54,3 +54,4 @@ if ongelijke_waarden.empty:
 else:
     print("Er zijn 'Sleutel'-waarden met een andere 'Waarde' dan 3:")
     print(ongelijke_waarden)
+
