@@ -20,7 +20,6 @@ A = Adressen['Huisadres']
 D = Bewoners['Bewoner']
 E = Paar[['Bewoner1', 'Bewoner2']]
 G = ['Voor', 'Hoofd', 'Na']
-# print(A, D, E, G)
 
 #parameters
 # ka = ?
