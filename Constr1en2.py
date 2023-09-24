@@ -30,6 +30,9 @@ vg_ag = Kookte[ ['Huisadres','Gang'] ]
 vt_d1d2 = Tafelgenoot
 b_d1d2 = Buren
 
+
+
+
 #Elke DEELNEMER, Elke GANG, = 1
 c1 = {}
 d = set(oplossing['Bewoner'])
@@ -40,16 +43,16 @@ for i in d:
     abc= oplossing[oplossing['Bewoner']==i] [['Voor','Hoofd','Na']].values[0]
     l = len(set(abc))
     c1[i]= l 
-
-
+# print(c1)
 #c1 returnt een dictionary, met 'bewoner': aantal verschillende adressen op de avond
 # wat dus gelijk moet zijn aan 3, voor hoofd en na
 # set() maakt het uniek
-dfc1 = pd.DataFrame(list(c1.items()), columns=['Sleutel', 'Waarde'])
+
+dfc1 = pd.DataFrame(list(c1.items()), columns=['Deelnemer', 'aantal adressen'])
 # print(dfc1.head())
 
 
-ongelijke_waarden = dfc1[dfc1['Waarde'] != 3]
+ongelijke_waarden = dfc1[dfc1['aantal adressen'] != 3]
 # Als de DataFrame 'ongelijke_waarden' leeg is, betekent dit dat er geen 'Sleutel' is met een andere 'Waarde' dan 3
 if ongelijke_waarden.empty:
     print("Elk deelnemer heeft zijn gangen op 3 verschillende adres.")
