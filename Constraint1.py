@@ -1,7 +1,4 @@
-import pandas as pd
-
 import pandas as pd 
-from Constraint5 import Constraint5
 
 Oplossing2021Excel = 'Running Dinner eerste oplossing 2021.xlsx'
 Oplossing2021 = pd.read_excel(Oplossing2021Excel)
