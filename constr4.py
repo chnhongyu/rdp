@@ -12,14 +12,22 @@ ub = Adressen[['Huisadres','Max groepsgrootte']]
 print(lb)
 # daadwerkelijke aantal vergelijken met toegelaten aantal, voor elk adres
 
-adres = set(oplossing['Huisadres'])
-# print(adres)
 
-con4 = []
+# verdelen in twee soorten adressen, adressen die moet koken en adressen die niet hoeft te koken
+niet_kokend = oplossing[oplossing['kookt'].isna()]
+kokend = oplossing.dropna(subset=['kookt'])
+
+
+adres = set(oplossing['Huisadres'])
+# set van adressen
+
+
+
+# con4 = []
 # for a in adres:
-#     if oplossing[oplossing['Huisadres']==a]['aantal']> lb[lb['Huisadres']==a] and oplossing[oplossing['Huisadres']==a]['aantal']<ub :
+#     # if (lb[lb['Huisadres']==a]) <= (oplossing[oplossing['Huisadres']==a]['aantal']) <= (ub[ub['Huisadres']==a]) :
 #         con4.append(oplossing[oplossing['Huisadres']==a][['Huisadres','aantal']])
 # print(con4)
-# con4 returnt huisadres en aantal
-print()
+# # con4 returnt huisadres en aantal
+# print()
 

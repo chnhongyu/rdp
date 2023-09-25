@@ -49,4 +49,4 @@ for i in range(len(kokend)):
 if len(con3)==0:
     print('voldoet constr 3')
 
-
+print(kokend, niet_kokend)
