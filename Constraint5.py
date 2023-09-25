@@ -1,4 +1,5 @@
-def Constraint5(Paar, Oplossing)
+def Constraint5(Paar, Oplossing):
+    Status = True
     for index, row in Paar.iterrows():
         Bewoner1 = row['Bewoner1']
         Bewoner2 = row['Bewoner2']
@@ -8,7 +9,8 @@ def Constraint5(Paar, Oplossing)
             if row['Bewoner'] == Bewoner2:
                 Adressen2 = [row['Voor'], row['Hoofd'], row['Na']]
         if Adressen1 != Adressen2:
-            print(f'paar {Bewoner1} en {Bewoner2} zitten niet elke gang bij elkaar')
+            Status = False
+    return Status
     
 
             

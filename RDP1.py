@@ -1,4 +1,5 @@
 import pandas as pd 
+from Constraint5 import Constraint5
 
 Oplossing2021Excel = 'Running Dinner eerste oplossing 2021.xlsx'
 Oplossing2021 = pd.read_excel(Oplossing2021Excel)
@@ -12,7 +13,7 @@ Kookte2021 = pd.read_excel(Dataset2021Excel, sheet_name = 'Kookte vorig jaar', h
 Tafelgenoot2021 = pd.read_excel(Dataset2021Excel, sheet_name = 'Tafelgenoot vorig jaar', header = 1)
 
 Oplossing2022Excel = 'Running Dinner eerste oplossing 2022.xlsx'
-oplossing2022 = pd.read_excel(Oplossing2022Excel)
+Oplossing2022 = pd.read_excel(Oplossing2022Excel)
 
 Dataset2022Excel = 'Running Dinner dataset 2022.xlsx'
 Bewoners2022 = pd.read_excel(Dataset2022Excel, sheet_name = 'Bewoners')
@@ -22,3 +23,6 @@ Buren2022 = pd.read_excel(Dataset2022Excel, sheet_name = 'Buren', header = 1)
 Kookte2022 = pd.read_excel(Dataset2022Excel, sheet_name = 'Kookte vorig jaar', header = 1)
 Tafelgenoot2022 = pd.read_excel(Dataset2022Excel, sheet_name = 'Tafelgenoot vorig jaar', header = 1)
 
+Status = True
+while Status:
+    Constraint5(Paar2022, Oplossing2022)
