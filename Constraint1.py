@@ -34,6 +34,7 @@ Tafelgenoot2021 = pd.read_excel(Dataset2021Excel, sheet_name = 'Tafelgenoot vori
 
 def constraint1(Oplossing):
     ### Oplossing is de dataframe van dat jaar. bijv Oplossing = pd.read_excel('.xlsx')###
+    #functie checkt of de data voldoet aan constraint1, als statement True is voldoet het. False voldoet dus niet.
     statement = True
 
     Deelnemer_ongelijk_aan_3 = {}
