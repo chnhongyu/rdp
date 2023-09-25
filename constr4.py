@@ -33,6 +33,18 @@ hoofd = oplossing['Hoofd'].value_counts()
 na = oplossing['Na'].value_counts()
 count_voor_elk_a = pd.concat([voor,hoofd,na])
 # print(count_voor_elk_a)
+cvea = pd.DataFrame(count_voor_elk_a)
+cvea = cvea.rename(columns={'index': 'Adres'}).reset_index(drop=True)
+print(cvea)
+
+
+# goede_adressen = []
+# foute_adressen = []
+# for a in adres:
+#     if  lb[lb['Huisadres']==a]['Min groepsgrootte']<= count_voor_elk_a[count_voor_elk_a['Huisadres']==a] <= ub[ ub['Huisadres']==a ]['Max groepsgrootte']:
+#         goede_adressen.append(a)
+#     else:
+#         foute_adressen.append(a)
 
 
 
