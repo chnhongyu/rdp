@@ -32,3 +32,22 @@ Tafelgenoot2021 = pd.read_excel(Dataset2021Excel, sheet_name = 'Tafelgenoot vori
 # input: Oplossing2021
 # output: voldoet wel/niet aan constraint1
 
+def constraint1(Oplossing):
+    ### Oplossing is de dataframe van dat jaar. bijv Oplossing = pd.read_excel('.xlsx')###
+    statement = True
+
+    Deelnemer_ongelijk_aan_3 = {}
+    for deelnemer in Oplossing['Bewoner']:
+        gangen = Oplossing[Oplossing['Bewoner']==deelnemer][['Voor','Hoofd','Na']].values[0]
+        aantal_gangen = len(set(gangen))
+        if aantal_gangen !=3:
+            Deelnemer_ongelijk_aan_3[deelnemer]= aantal_gangen
+    if len(Deelnemer_ongelijk_aan_3) >0:
+        statement = False
+    return print(statement)
+
+
+constraint1(Oplossing2021)
+    
+
+
