@@ -30,8 +30,10 @@ Bewoners = pd.read_excel(Dataset, sheet_name = 'Bewoners')
 niet_kokend = oplossing[oplossing['kookt'].isna()]
 kokend = oplossing.dropna(subset=['kookt'])
 
+
 niet_kokend_check = set(Bewoners[Bewoners['Kookt niet']==1]['Huisadres'])
 oplos_niet_kokend_check = set(niet_kokend['Huisadres'])
+
 if oplos_niet_kokend_check == niet_kokend_check:
     print('planning voldoet aan de data')
 else:
@@ -49,4 +51,5 @@ for i in range(len(kokend)):
 if len(con3)==0:
     print('voldoet constr 3')
 
-print(kokend, niet_kokend)
+print(kokend.iloc[0]['Voor'])
+print(kokend.iloc[0]['Huisadres'])
