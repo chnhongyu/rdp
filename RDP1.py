@@ -25,4 +25,7 @@ Tafelgenoot2022 = pd.read_excel(Dataset2022Excel, sheet_name = 'Tafelgenoot vori
 
 Status = True
 while Status:
-    Constraint5(Paar2022, Oplossing2022)
+    Status = Constraint5(Paar2021, Oplossing2021)
+
+    
+    
