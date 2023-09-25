@@ -24,3 +24,4 @@ Tafelgenoot2021 = pd.read_excel(Dataset2021Excel, sheet_name = 'Tafelgenoot vori
 # Tafelgenoot2022 = pd.read_excel(Dataset2022Excel, sheet_name = 'Tafelgenoot vorig jaar', header = 1)
 
 #------------------------------
+# Constraint 3 zorgt voor alle adres
