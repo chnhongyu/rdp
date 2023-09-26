@@ -1,6 +1,8 @@
 #------------------------------
 # Constraint 1 zorgt voor dat elke deelnemer, elke gang, op 1 adres eet.
-# dus deelnemer1: | a1 | a2 | a3 |
+# (g=voor,hoofd,na) | g1 | g2 | g3 |
+#     deelnemer1:   | a1 | a2 | a3 |
+# lengte van set over de adress voor elk deelnemer = 3
 # input: Oplossing2021
 # output: voldoet wel/niet aan constraint1
 
