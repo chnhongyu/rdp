@@ -34,7 +34,7 @@ statement = True
 for adres in adres_count:
     lb = dataset[ dataset['Huisadres']== adres ]['Min groepsgrootte'].values
     ub = dataset[ dataset['Huisadres']== adres ]['Max groepsgrootte'].values
-    if adres_count[a]>ub or adres_count[a]<lb:
+    if adres_count[adres]>ub or adres_count[adres]<lb:
         statement= False
 print(statement)
 
