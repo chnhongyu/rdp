@@ -31,10 +31,10 @@ for index_bewoners, rij in kokend.iterrows():
 #----------------------------------------------
 # nu dataset bewerken
 statement = True
-for a in adres_count:
-    lb = dataset[ dataset['Huisadres']== a ]['Min groepsgrootte'].values
-    ub = dataset[ dataset['Huisadres']== a ]['Max groepsgrootte'].values
-    if adres_count[a]>ub or adres_count[a]<lb:
+for adres in adres_count:
+    lb = dataset[ dataset['Huisadres']== adres ]['Min groepsgrootte'].values
+    ub = dataset[ dataset['Huisadres']== adres ]['Max groepsgrootte'].values
+    if adres_count[adres]>ub or adres_count[adres]<lb:
         statement= False
 print(statement)
 
