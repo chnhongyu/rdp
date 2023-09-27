@@ -58,7 +58,7 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
     
     ## Constraint 5
 
-    for paar,(d1,d2) in dataset.iterrows():
+    for paar,(d1,d2) in Paar.iterrows():
         lhs = Paar[ Paar['Bewoner']==d1 ][ ['Voor','Hoofd','Na'] ].values.tolist()
         rhs = Paar[ Paar['Bewoner']==d2 ][ ['Voor','Hoofd','Na'] ].values.tolist()
         if lhs != rhs:
