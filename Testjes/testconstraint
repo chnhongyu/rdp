@@ -27,10 +27,7 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
         statement = False
         
     ## Constraint 2
-    set_adres = set(Oplossing['Huisadres'])
-    for adres in set_adres:
-        if ( len( set( Oplossing[ Oplossing['Huisadres']==adres ]['kookt'].values ) )) != 1:
-            statement = False
+    
     
 
     ## Constraint 3
@@ -66,8 +63,3 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
         rhs = Paar[ Paar['Bewoner']==d2 ][ ['Voor','Hoofd','Na'] ].values.tolist()
         if lhs != rhs:
             statement = False
-    
-
-    
-    
-    
