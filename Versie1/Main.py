@@ -29,11 +29,15 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
                 Deelnemer_ongelijk_aan_3[deelnemer] = aantal_gangen
         if len(Deelnemer_ongelijk_aan_3) > 0:
             print('Er wordt niet voldaan aan Constraint 1')
-            statement = False
+            Statement = False
             
         ## Constraint 2
         
-        
+        set_adres = set(Oplossing['Huisadres'])
+        for adres in set_adres:
+            if ( len( set( Oplossing[ Oplossing['Huisadres']==adres ]['kookt'].values ) )) != 1:
+                print('Er wordt niet voldaan aan Constraint 3')
+                Statement = False
 
         ## Constraint 3
         
@@ -47,7 +51,7 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
                 Checklijst.append(df_kokend.iloc[deelnemer]['Bewoner'])
         if len(Checklijst) > 0:
             print('Er wordt niet voldaan aan Constraint 3')
-            statement = False    
+            Statement = False    
             
         ## Constraint 4
         
@@ -61,7 +65,7 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
             ub = Adressen[ Adressen['Huisadres']== a ]['Max groepsgrootte'].values
             if adres_count[a]>ub or adres_count[a]<lb:
                 print('Er wordt niet voldaan aan Constraint 4')
-                statement= False
+                Statement= False
         
         ## Constraint 5
 
@@ -70,7 +74,7 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
             rhs = Oplossing[ Oplossing['Bewoner']==d2 ][ ['Voor','Hoofd','Na'] ].values.tolist()
             if lhs != rhs:
                 print('Er wordt niet voldaan aan Constraint 5')
-                statement = False
+                Statement = False
     
         ## Wens 1
         
@@ -83,9 +87,15 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
         
         ## Wens 3
         
+        df_voorkeur = Adressen.dropna(subset=['Voorkeur gang'])
+        df_voorkeur_hetzelfde = Oplossing.merge(df_voorkeur, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Voorkeur gang'], how='inner')
+        Wens3 = len(df_voorkeur) - df_voorkeur_hetzelfde['Huisadres'].nunique()
+        
+        ## Kwaliteit oplossing
+        
+        Niveau = Wens2 + Wens3
+        
         Statement = False
-    
-    Niveau = Wens1 + Wens2
     
     return(Niveau)
 
