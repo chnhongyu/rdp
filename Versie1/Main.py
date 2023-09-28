@@ -12,59 +12,84 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
     Buren = pd.read_excel(Filepath_Dataset, sheet_name = 'Buren', header = 1)
     Kookte = pd.read_excel(Filepath_Dataset, sheet_name = 'Kookte vorig jaar', header = 1)
     Tafelgenoot = pd.read_excel(Filepath_Dataset, sheet_name = 'Tafelgenoot vorig jaar', header = 1)
-    
+        
+    Niveau = 0    
+        
     Statement = True
-    
-    ## Constraint 1
-    
-    Deelnemer_ongelijk_aan_3 = {}
-    for deelnemer in Oplossing['Bewoner']:
-        gangen = Oplossing[Oplossing['Bewoner']==deelnemer][['Voor','Hoofd','Na']].values[0]
-        aantal_gangen = len(set(gangen))
-        if aantal_gangen !=3:
-            Deelnemer_ongelijk_aan_3[deelnemer] = aantal_gangen
-    if len(Deelnemer_ongelijk_aan_3) >0:
-        statement = False
-        
-    ## Constraint 2
-    
-    
 
-    ## Constraint 3
+    while Statement:
     
-    Checklijst = []
-    df_kokend = Oplossing.dropna(subset=['kookt'])
-    for deelnemer in range(len(df_kokend)):
-        gang = df_kokend.iloc[deelnemer]['kookt']
-        lhs = df_kokend.iloc[deelnemer][gang]
-        rhs = df_kokend.iloc[deelnemer]['Huisadres']
-        if lhs != rhs:
-            Checklijst.append(df_kokend.iloc[deelnemer]['Bewoner'])
-    if len(Checklijst) > 0:
-        statement = False    
+        ## Constraint 1
         
-    ## Constraint 4
-    
-    kokend = Oplossing.dropna(subset=['kookt'])
-    adres_count = {}
-    for index_bewoners, rij in kokend.iterrows():
-        if rij['Huisadres'] not in adres_count:
-            adres_count[rij['Huisadres']] = rij['aantal'] 
-    for a in adres_count:
-        lb = Adressen[ Adressen['Huisadres']== a ]['Min groepsgrootte'].values
-        ub = Adressen[ Adressen['Huisadres']== a ]['Max groepsgrootte'].values
-        if adres_count[a]>ub or adres_count[a]<lb:
-            statement= False
-    
-    ## Constraint 5
-
-    for paar,(d1,d2) in Paar.iterrows():
-        lhs = Paar[ Paar['Bewoner']==d1 ][ ['Voor','Hoofd','Na'] ].values.tolist()
-        rhs = Paar[ Paar['Bewoner']==d2 ][ ['Voor','Hoofd','Na'] ].values.tolist()
-        if lhs != rhs:
+        Deelnemer_ongelijk_aan_3 = {}
+        for deelnemer in Oplossing['Bewoner']:
+            gangen = Oplossing[Oplossing['Bewoner']==deelnemer][['Voor','Hoofd','Na']].values[0]
+            aantal_gangen = len(set(gangen))
+            if aantal_gangen !=3:
+                Deelnemer_ongelijk_aan_3[deelnemer] = aantal_gangen
+        if len(Deelnemer_ongelijk_aan_3) > 0:
+            print('Er wordt niet voldaan aan Constraint 1')
             statement = False
-    
+            
+        ## Constraint 2
+        
+        
 
+        ## Constraint 3
+        
+        Checklijst = []
+        df_kokend = Oplossing.dropna(subset=['kookt'])
+        for deelnemer in range(len(df_kokend)):
+            gang = df_kokend.iloc[deelnemer]['kookt']
+            lhs = df_kokend.iloc[deelnemer][gang]
+            rhs = df_kokend.iloc[deelnemer]['Huisadres']
+            if lhs != rhs:
+                Checklijst.append(df_kokend.iloc[deelnemer]['Bewoner'])
+        if len(Checklijst) > 0:
+            print('Er wordt niet voldaan aan Constraint 3')
+            statement = False    
+            
+        ## Constraint 4
+        
+        kokend = Oplossing.dropna(subset=['kookt'])
+        adres_count = {}
+        for index_bewoners, rij in kokend.iterrows():
+            if rij['Huisadres'] not in adres_count:
+                adres_count[rij['Huisadres']] = rij['aantal'] 
+        for a in adres_count:
+            lb = Adressen[ Adressen['Huisadres']== a ]['Min groepsgrootte'].values
+            ub = Adressen[ Adressen['Huisadres']== a ]['Max groepsgrootte'].values
+            if adres_count[a]>ub or adres_count[a]<lb:
+                print('Er wordt niet voldaan aan Constraint 4')
+                statement= False
+        
+        ## Constraint 5
+
+        for paar,(d1,d2) in Paar.iterrows():
+            lhs = Oplossing[ Oplossing['Bewoner']==d1 ][ ['Voor','Hoofd','Na'] ].values.tolist()
+            rhs = Oplossing[ Oplossing['Bewoner']==d2 ][ ['Voor','Hoofd','Na'] ].values.tolist()
+            if lhs != rhs:
+                print('Er wordt niet voldaan aan Constraint 5')
+                statement = False
     
+        ## Wens 1
+        
+        
+        
+        ## Wens 2
+        
+        df_koken_hetzelfde = Oplossing.merge(Kookte, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Gang'], how='inner')
+        Wens2 = df_koken_hetzelfde['Huisadres'].nunique()
+        
+        ## Wens 3
+        
+        Statement = False
+    
+    Niveau = Wens1 + Wens2
+    
+    return(Niveau)
+
+Uitkomst = Constraint('Running Dinner dataset 2022.xlsx', 'Running Dinner eerste oplossing 2022.xlsx') 
+print(Uitkomst)   
     
     
