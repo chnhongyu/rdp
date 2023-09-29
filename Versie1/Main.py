@@ -13,7 +13,7 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
     Kookte = pd.read_excel(Filepath_Dataset, sheet_name = 'Kookte vorig jaar', header = 1)
     Tafelgenoot = pd.read_excel(Filepath_Dataset, sheet_name = 'Tafelgenoot vorig jaar', header = 1)
         
-    Niveau = 0    
+    Niveau = 10^10    
         
     Statement = True
 
@@ -36,7 +36,7 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
         set_adres = set(Oplossing['Huisadres'])
         for adres in set_adres:
             if ( len( set( Oplossing[ Oplossing['Huisadres']==adres ]['kookt'].values ) )) != 1:
-                print('Er wordt niet voldaan aan Constraint 3')
+                print('Er wordt niet voldaan aan Constraint 2')
                 Statement = False
 
         ## Constraint 3
@@ -78,8 +78,25 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
     
         ## Wens 1
         
+        Wens1 = 0
         
+        bewoner_data = {}
+        for index, row in Oplossing.iterrows():
+            bewoner = row['Bewoner']
+            voor = row['Voor']
+            hoofd = row['Hoofd']
+            na = row['Na']
+            bewoner_data[bewoner] = [voor, hoofd, na]
         
+        for bewoner1, waarden1 in bewoner_data.items():
+            for bewoner2, waarden2 in bewoner_data.items():
+                if bewoner1 != bewoner2:  
+                    overeenkomende_waarden = set(waarden1) & set(waarden2)
+                    if len(overeenkomende_waarden) == 2:
+                        Wens1 += 1
+                    if len(overeenkomende_waarden) == 3:
+                        Wens1 += 2
+                
         ## Wens 2
         
         df_koken_hetzelfde = Oplossing.merge(Kookte, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Gang'], how='inner')
@@ -91,9 +108,37 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
         df_voorkeur_hetzelfde = Oplossing.merge(df_voorkeur, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Voorkeur gang'], how='inner')
         Wens3 = len(df_voorkeur) - df_voorkeur_hetzelfde['Huisadres'].nunique()
         
+        ## Wens 4
+        
+        Buren['VoorBewoner1'] = Buren['Bewoner1'].map(Oplossing.set_index('Bewoner')['Voor'])
+        Buren['VoorBewoner2'] = Buren['Bewoner2'].map(Oplossing.set_index('Bewoner')['Voor'])
+        Buren['VoorSamen'] = (Buren['VoorBewoner1'] == Buren['VoorBewoner2'])
+        Buren['HoofdBewoner1'] = Buren['Bewoner1'].map(Oplossing.set_index('Bewoner')['Hoofd'])
+        Buren['HoofdBewoner2'] = Buren['Bewoner2'].map(Oplossing.set_index('Bewoner')['Hoofd'])
+        Buren['HoofdSamen'] = (Buren['HoofdBewoner1'] == Buren['HoofdBewoner2'])
+        Buren['NaBewoner1'] = Buren['Bewoner1'].map(Oplossing.set_index('Bewoner')['Na'])
+        Buren['NaBewoner2'] = Buren['Bewoner2'].map(Oplossing.set_index('Bewoner')['Na'])
+        Buren['NaSamen'] = (Buren['NaBewoner1'] == Buren['NaBewoner2'])
+        Wens4 = Buren['VoorSamen'].sum() + Buren['HoofdSamen'].sum() + Buren['NaSamen'].sum()
+        
+        ## Wens 5
+        
+        Tafelgenoot['Huisadres1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Huisadres'])
+        Tafelgenoot['Huisadres2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Huisadres'])
+        Tafelgenoot['VoorBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Voor'])
+        Tafelgenoot['VoorBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Voor'])
+        Tafelgenoot['VoorSamen'] = (Tafelgenoot['Huisadres1'] != Tafelgenoot['Huisadres2']) & (Tafelgenoot['VoorBewoner1'] == Tafelgenoot['VoorBewoner2'])
+        Tafelgenoot['HoofdBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Hoofd'])
+        Tafelgenoot['HoofdBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Hoofd'])
+        Tafelgenoot['HoofdSamen'] = (Tafelgenoot['Huisadres1'] != Tafelgenoot['Huisadres2']) & (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
+        Tafelgenoot['NaBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Na'])
+        Tafelgenoot['NaBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Na'])
+        Tafelgenoot['NaSamen'] = (Tafelgenoot['Huisadres1'] != Tafelgenoot['Huisadres2']) & (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
+        Wens5 = Tafelgenoot['VoorSamen'].sum() + Tafelgenoot['HoofdSamen'].sum() + Tafelgenoot['NaSamen'].sum()
+  
         ## Kwaliteit oplossing
         
-        Niveau = Wens2 + Wens3
+        Niveau = Wens1 + Wens2 + Wens3 + Wens4 + Wens5
         
         Statement = False
     
