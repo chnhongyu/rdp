@@ -8,16 +8,13 @@ df = pd.read_excel('Running Dinner eerste oplossing 2021.xlsx')
 kolommen = ['Voor', 'Hoofd', 'Na']
 
 # Definieer een functie om de kost te berekenen die je wilt minimaliseren
-def bereken_kost(df):
+# def Constraint(Filepath_Dataset, Filepath_Oplossing):
     # Hier kun je je eigen kostfunctie implementeren
     # In dit voorbeeld berekenen we de kost als het aantal unieke waarden in de geselecteerde kolommen
-    geselecteerde_waarden = df[kolommen].values.flatten()
-    kost = len(set(geselecteerde_waarden))
-    return kost
 
 # Implementeer simulated annealing
 def simulated_annealing(df, kolommen, temperatuur=100, cool_rate=0.99, iteraties=1000):
-    huidige_kost = bereken_kost(df)
+    huidige_kost = Constraint(df)
     beste_kost = huidige_kost
     beste_oplossing = df.copy()
     
@@ -35,7 +32,7 @@ def simulated_annealing(df, kolommen, temperatuur=100, cool_rate=0.99, iteraties
         nieuw_df.loc[nieuw_df[geselecteerde_kolom] == waarde2, geselecteerde_kolom] = waarde1
         
         # Bereken de kost van de nieuwe oplossing
-        nieuwe_kost = bereken_kost(nieuw_df)
+        nieuwe_kost = Constraint(nieuw_df)
         
         # Bereken de kans om de nieuwe oplossing te accepteren
         kans = math.exp((huidige_kost - nieuwe_kost) / temperatuur)
