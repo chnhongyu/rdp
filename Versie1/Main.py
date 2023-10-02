@@ -79,7 +79,6 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
         ## Wens 1
         
         Wens1 = 0
-        
         bewoner_data = {}
         for index, row in Oplossing.iterrows():
             bewoner = row['Bewoner']
@@ -87,7 +86,6 @@ def Constraint(Filepath_Dataset, Filepath_Oplossing):
             hoofd = row['Hoofd']
             na = row['Na']
             bewoner_data[bewoner] = [voor, hoofd, na]
-        
         for bewoner1, waarden1 in bewoner_data.items():
             for bewoner2, waarden2 in bewoner_data.items():
                 if bewoner1 != bewoner2:  
