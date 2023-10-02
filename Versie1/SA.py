@@ -13,7 +13,7 @@ kolommen = ['Voor', 'Hoofd', 'Na']
     # In dit voorbeeld berekenen we de kost als het aantal unieke waarden in de geselecteerde kolommen
 
 # Implementeer simulated annealing
-def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, kolommen, temperatuur=100, cool_rate=0.99, iteraties=500):
+def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, kolommen, temperatuur=100, cool_rate=0.99, iteraties=10):
        
     Oplossing = pd.read_excel(Filepath_Oplossing)
     
@@ -47,7 +47,7 @@ def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, kolommen, temperat
         
         # Bereken de kans om de nieuwe oplossing te accepteren
         kans = math.exp((huidige_kost - nieuwe_kost) / temperatuur)
-        
+    
         # Accepteer de nieuwe oplossing met een bepaalde kans
         if nieuwe_kost < huidige_kost or random.random() < kans:
             Oplossing = nieuw_df
