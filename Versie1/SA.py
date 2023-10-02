@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import random
 import math
+from Main import Constraint
 
 df = pd.read_excel('Running Dinner eerste oplossing 2021.xlsx')
 # Kies de kolommen waarop je simulated annealing wilt toepassen
