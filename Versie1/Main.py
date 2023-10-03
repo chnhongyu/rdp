@@ -1,10 +1,8 @@
 import pandas as pd
 
-def Constraints(Filepath_Dataset, Filepath_Oplossing):
+def Constraints(Filepath_Dataset, Oplossing):
     
     ## Inlezen van dataset en oplossing
-    
-    Oplossing = pd.read_excel(Filepath_Oplossing)
     
     Bewoners = pd.read_excel(Filepath_Dataset, sheet_name = 'Bewoners')
     Adressen = pd.read_excel(Filepath_Dataset, sheet_name = 'Adressen')

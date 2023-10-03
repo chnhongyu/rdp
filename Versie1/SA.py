@@ -10,7 +10,7 @@ from Main import Wensen
     # In dit voorbeeld berekenen we de kost als het aantal unieke waarden in de geselecteerde kolommen
 
 # Implementeer simulated annealing
-def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, temperatuur=100, cool_rate=0.99, iteraties=500):
+def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, temperatuur=100, cool_rate=0.99, iteraties=50):
        
     kolommen = ['Voor', 'Hoofd', 'Na']
     Oplossing = pd.read_excel(Filepath_Oplossing)
@@ -73,3 +73,5 @@ beste_oplossing, beste_kost = simulated_annealing('Running Dinner dataset 2023 v
 print("Beste oplossing:")
 print(beste_oplossing)
 print("Beste kost:", beste_kost)
+
+Constraints('Running Dinner dataset 2023 v2.xlsx', beste_oplossing)
