@@ -15,6 +15,7 @@ oplossing = pd.read_excel(oplossing1)
 
 df1 = oplossing.head(20)
 
+#alle printjes nog weghalen
 def new_state_pair(df1, paar):
     df_new = df1.copy()
     
