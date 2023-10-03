@@ -11,6 +11,8 @@ def Constraints(Filepath_Dataset, Oplossing):
     Kookte = pd.read_excel(Filepath_Dataset, sheet_name = 'Kookte vorig jaar', header = 1)
     Tafelgenoot = pd.read_excel(Filepath_Dataset, sheet_name = 'Tafelgenoot vorig jaar', header = 1)    
     
+    Constraint = []
+    
     ## Constraint 1
     
     Deelnemer_ongelijk_aan_3 = {}
@@ -20,14 +22,14 @@ def Constraints(Filepath_Dataset, Oplossing):
         if aantal_gangen !=3:
             Deelnemer_ongelijk_aan_3[deelnemer] = aantal_gangen
     if len(Deelnemer_ongelijk_aan_3) > 0:
-        print('Er wordt niet voldaan aan Constraint 1')
+        Constraint.append('Er wordt niet voldaan aan Constraint 1')
         
     ## Constraint 2
     
     set_adres = set(Oplossing['Huisadres'])
     for adres in set_adres:
         if ( len( set( Oplossing[ Oplossing['Huisadres']==adres ]['kookt'].values ) )) != 1:
-            print('Er wordt niet voldaan aan Constraint 2')
+            Constraint.append('Er wordt niet voldaan aan Constraint 2')
 
     ## Constraint 3
     
@@ -40,7 +42,7 @@ def Constraints(Filepath_Dataset, Oplossing):
         if lhs != rhs:
             Checklijst.append(df_kokend.iloc[deelnemer]['Bewoner'])
     if len(Checklijst) > 0:
-        print('Er wordt niet voldaan aan Constraint 3') 
+        Constraint.append('Er wordt niet voldaan aan Constraint 3')
         
     ## Constraint 4
     
@@ -53,7 +55,7 @@ def Constraints(Filepath_Dataset, Oplossing):
         lb = Adressen[ Adressen['Huisadres']== a ]['Min groepsgrootte'].values
         ub = Adressen[ Adressen['Huisadres']== a ]['Max groepsgrootte'].values
         if adres_count[a]>ub or adres_count[a]<lb:
-            print('Er wordt niet voldaan aan Constraint 4')
+            Constraint.append('Er wordt niet voldaan aan Constraint 4')
     
     ## Constraint 5
 
@@ -61,8 +63,12 @@ def Constraints(Filepath_Dataset, Oplossing):
         lhs = Oplossing[ Oplossing['Bewoner']==d1 ][ ['Voor','Hoofd','Na'] ].values.tolist()
         rhs = Oplossing[ Oplossing['Bewoner']==d2 ][ ['Voor','Hoofd','Na'] ].values.tolist()
         if lhs != rhs:
-            print('Er wordt niet voldaan aan Constraint 5')
-        continue 
+            Constraint.append('Er wordt niet voldaan aan Constraint 5')
+    
+    if len(Constraint) == 0:
+        Constraint.append('Toegelaten')
+    
+    return Constraint
 
 def Wensen(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     
@@ -129,5 +135,3 @@ def Wensen(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     Niveau = Wens1 + Wens2 + Wens3 + Wens4 + Wens5
     
     return Niveau 
-    
-    

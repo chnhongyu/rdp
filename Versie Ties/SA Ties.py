@@ -2,15 +2,15 @@ import pandas as pd
 import numpy as np
 import random
 import math
-from Main import Constraints
-from Main import Wensen
+from MainTies import Constraints
+from MainTies import Wensen
 
 # Definieer een functie om de kost te berekenen die je wilt minimaliseren
 
     # In dit voorbeeld berekenen we de kost als het aantal unieke waarden in de geselecteerde kolommen
 
 # Implementeer simulated annealing
-def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, temperatuur=1000, cool_rate=0.999, iteraties=3000):
+def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, temperatuur=1000, cool_rate=0.999, iteraties=500):
        
     kolommen = ['Voor', 'Hoofd', 'Na']
     Oplossing = pd.read_excel(Filepath_Oplossing)
@@ -45,24 +45,28 @@ def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, temperatuur=1000, 
         nieuw_df.at[rij_indices[0], kolom] = waarde2
         nieuw_df.at[rij_indices[1], kolom] = waarde1
         
-        # Bereken de kost van de nieuwe oplossing
-        nieuwe_kost = Wensen(nieuw_df, Kookte, Adressen, Buren, Tafelgenoot)
+        toegelaten = Constraints(Filepath_Dataset, nieuw_df)
+
+        if toegelaten == ['Toegelaten']:
         
-        # Bereken de kans om de nieuwe oplossing te accepteren
-        kans = math.exp((huidige_kost - nieuwe_kost) / temperatuur)
-    
-        # Accepteer de nieuwe oplossing met een bepaalde kans
-        if nieuwe_kost < huidige_kost or random.random() < kans:
-            Oplossing = nieuw_df
-            huidige_kost = nieuwe_kost
+            # Bereken de kost van de nieuwe oplossing
+            nieuwe_kost = Wensen(nieuw_df, Kookte, Adressen, Buren, Tafelgenoot)
+            
+            # Bereken de kans om de nieuwe oplossing te accepteren
+            kans = math.exp((huidige_kost - nieuwe_kost) / temperatuur)
         
-        # Update de beste oplossing indien nodig
-        if nieuwe_kost < beste_kost:
-            beste_kost = nieuwe_kost
-            beste_oplossing = nieuw_df.copy()
-        
-        # Koel de temperatuur af
-        temperatuur *= cool_rate
+            # Accepteer de nieuwe oplossing met een bepaalde kans
+            if nieuwe_kost < huidige_kost or random.random() < kans:
+                Oplossing = nieuw_df
+                huidige_kost = nieuwe_kost
+            
+            # Update de beste oplossing indien nodig
+            if nieuwe_kost < beste_kost:
+                beste_kost = nieuwe_kost
+                beste_oplossing = nieuw_df.copy()
+            
+            # Koel de temperatuur af
+            temperatuur *= cool_rate
     
     return beste_oplossing, beste_kost
 
@@ -70,6 +74,9 @@ def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, temperatuur=1000, 
 beste_oplossing, beste_kost = simulated_annealing('Running Dinner dataset 2023 v2.xlsx', 'Running Dinner eerste oplossing 2023 v2.xlsx')
 
 # Print de beste oplossing en kost
-print("Beste oplossing:")
-print(beste_oplossing)
+print("Beste oplossing:", beste_oplossing)
 print("Beste kost:", beste_kost)
+print("Toegelaten:", Constraints('Running Dinner dataset 2023 v2.xlsx', beste_oplossing))
+
+df = pd.DataFrame(beste_oplossing)
+df.to_excel('oplossing1.xlsx', index=False)
