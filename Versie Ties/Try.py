@@ -79,10 +79,10 @@ def Wensen2(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     
     Niveau = Wens1 + Wens2 + Wens3 + Wens4 + Wens5
     
-    return Niveau, Wens1, Wens2, Wens3, Wens4, Wens5
+    return Niveau, Wens1, Wens2, Wens3, Wens4, Wens5, Tafelgenoot
 
+Niveau, Wens1, Wens2, Wens3, Wens4, Wens5, Tafelgenoot = Wensen2(Oplossing, Kookte, Adressen, Buren, Tafelgenoot)
+print(Niveau, Wens1, Wens2, Wens3, Wens4, Wens5)
 df = pd.DataFrame(Tafelgenoot)
 df.to_excel('Tafelgenoot.xlsx', index=False)
-Niveau, Wens1, Wens2, Wens3, Wens4, Wens5 = Wensen2(Oplossing, Kookte, Adressen, Buren, Tafelgenoot)
-print(Niveau, Wens1, Wens2, Wens3, Wens4, Wens5)
 
