@@ -5,16 +5,14 @@ import math
 from Main import Constraints
 from Main import Wensen
 
-# Kies de kolommen waarop je simulated annealing wilt toepassen
-kolommen = ['Voor', 'Hoofd', 'Na']
-
 # Definieer een functie om de kost te berekenen die je wilt minimaliseren
 
     # In dit voorbeeld berekenen we de kost als het aantal unieke waarden in de geselecteerde kolommen
 
 # Implementeer simulated annealing
-def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, kolommen, temperatuur=100, cool_rate=0.99, iteraties=10):
+def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, temperatuur=100, cool_rate=0.99, iteraties=50):
        
+    kolommen = ['Voor', 'Hoofd', 'Na']
     Oplossing = pd.read_excel(Filepath_Oplossing)
     
     Bewoners = pd.read_excel(Filepath_Dataset, sheet_name = 'Bewoners')
@@ -29,18 +27,23 @@ def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, kolommen, temperat
     beste_oplossing = Oplossing.copy()
     
     for i in range(iteraties):
-        # Kies een willekeurige kolom om te wijzigen
-        geselecteerde_kolom = random.choice(kolommen)
+
+        # Kies willekeurig twee verschillende rijen
+        rij_indices = random.sample(range(len(Oplossing)), 2)
         
-        # Kies willekeurig twee waarden uit de geselecteerde kolom om te verwisselen
-        waarden = Oplossing[geselecteerde_kolom].unique()
-        waarden_lijst = waarden.tolist()
-        waarde1, waarde2 = random.sample(waarden_lijst, 2)
-        
-        # Maak een kopie van het DataFrame en wissel de waarden in de geselecteerde kolom
+        # Selecteer willekeurig de kolom waarin je de waarden wilt omwisselen
+        kolom = random.choice(kolommen)
+
+        # Haal de waarden op uit de geselecteerde cellen
+        waarde1 = Oplossing.at[rij_indices[0], kolom]
+        waarde2 = Oplossing.at[rij_indices[1], kolom]
+
+        # Maak een kopie van het DataFrame
         nieuw_df = Oplossing.copy()
-        nieuw_df.loc[nieuw_df[geselecteerde_kolom] == waarde1, geselecteerde_kolom] = waarde2
-        nieuw_df.loc[nieuw_df[geselecteerde_kolom] == waarde2, geselecteerde_kolom] = waarde1
+
+        # Wissel de waarden in de geselecteerde kolom voor de geselecteerde cellen om
+        nieuw_df.at[rij_indices[0], kolom] = waarde2
+        nieuw_df.at[rij_indices[1], kolom] = waarde1
         
         # Bereken de kost van de nieuwe oplossing
         nieuwe_kost = Wensen(nieuw_df, Kookte, Adressen, Buren, Tafelgenoot)
@@ -64,7 +67,7 @@ def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, kolommen, temperat
     return beste_oplossing, beste_kost
 
 # Voer simulated annealing uit
-beste_oplossing, beste_kost = simulated_annealing('Running Dinner dataset 2023 v2.xlsx', 'Running Dinner eerste oplossing 2023 v2.xlsx', kolommen)
+beste_oplossing, beste_kost = simulated_annealing('Running Dinner dataset 2023 v2.xlsx', 'Running Dinner eerste oplossing 2023 v2.xlsx')
 
 # Print de beste oplossing en kost
 print("Beste oplossing:")
