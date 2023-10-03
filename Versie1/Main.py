@@ -62,6 +62,7 @@ def Constraints(Filepath_Dataset, Oplossing):
         rhs = Oplossing[ Oplossing['Bewoner']==d2 ][ ['Voor','Hoofd','Na'] ].values.tolist()
         if lhs != rhs:
             print('Er wordt niet voldaan aan Constraint 5')
+            continue 
 
 def Wensen(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     
