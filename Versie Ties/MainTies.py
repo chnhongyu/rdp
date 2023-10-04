@@ -119,17 +119,15 @@ def Wensen(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     
     ## Wens 5
     
-    Tafelgenoot['Huisadres1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Huisadres'])
-    Tafelgenoot['Huisadres2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Huisadres'])
     Tafelgenoot['VoorBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Voor'])
     Tafelgenoot['VoorBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Voor'])
-    Tafelgenoot['VoorSamen'] = (Tafelgenoot['Huisadres1'] != Tafelgenoot['Huisadres2']) & (Tafelgenoot['VoorBewoner1'] == Tafelgenoot['VoorBewoner2'])
+    Tafelgenoot['VoorSamen'] = (Tafelgenoot['VoorBewoner1'] == Tafelgenoot['VoorBewoner2'])
     Tafelgenoot['HoofdBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Hoofd'])
     Tafelgenoot['HoofdBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Hoofd'])
-    Tafelgenoot['HoofdSamen'] = (Tafelgenoot['Huisadres1'] != Tafelgenoot['Huisadres2']) & (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
+    Tafelgenoot['HoofdSamen'] = (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
     Tafelgenoot['NaBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Na'])
     Tafelgenoot['NaBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Na'])
-    Tafelgenoot['NaSamen'] = (Tafelgenoot['Huisadres1'] != Tafelgenoot['Huisadres2']) & (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
+    Tafelgenoot['NaSamen'] = (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
     Wens5 = Tafelgenoot['VoorSamen'].sum() + Tafelgenoot['HoofdSamen'].sum() + Tafelgenoot['NaSamen'].sum()
 
     ## Kwaliteit oplossing

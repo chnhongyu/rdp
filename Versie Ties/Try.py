@@ -3,8 +3,8 @@ from collections import OrderedDict
 from itertools import combinations
 import numpy as np
 
-Filepath_Oplossing = 'Running Dinner eerste oplossing 2022.xlsx'
-Filepath_Dataset = 'Running Dinner dataset 2022.xlsx'
+Filepath_Oplossing = 'oplossing1.xlsx'
+Filepath_Dataset = 'Running Dinner dataset 2023 v2.xlsx'
 
 Oplossing = pd.read_excel(Filepath_Oplossing)
     
