@@ -1,4 +1,7 @@
 import pandas as pd
+from collections import OrderedDict
+from itertools import combinations
+import numpy as np
 
 Filepath_Oplossing = 'Running Dinner eerste oplossing 2023 v2.xlsx'
 Filepath_Dataset = 'Running Dinner dataset 2023 v2.xlsx'
@@ -11,30 +14,64 @@ Paar = pd.read_excel(Filepath_Dataset, sheet_name = 'Paar blijft bij elkaar', he
 Buren = pd.read_excel(Filepath_Dataset, sheet_name = 'Buren', header = 1)
 Kookte = pd.read_excel(Filepath_Dataset, sheet_name = 'Kookte vorig jaar', header = 1)
 Tafelgenoot = pd.read_excel(Filepath_Dataset, sheet_name = 'Tafelgenoot vorig jaar', header = 1) 
-    
-
 
 def Wensen2(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     
     ## Wens 1
         
     Wens1 = 0
-    bewoner_data = {}
+    data = {}
     for index, row in Oplossing.iterrows():
         bewoner = row['Bewoner']
         voor = row['Voor']
         hoofd = row['Hoofd']
         na = row['Na']
-        bewoner_data[bewoner] = [voor, hoofd, na]
-    for bewoner1, waarden1 in bewoner_data.items():
-        for bewoner2, waarden2 in bewoner_data.items():
-            if bewoner1 != bewoner2:  
-                overeenkomende_waarden = set(waarden1) & set(waarden2)
-                if len(overeenkomende_waarden) == 2:
-                    Wens1 += 1
-                if len(overeenkomende_waarden) == 3:
-                    Wens1 += 2
+        data[bewoner] = [voor, hoofd, na]
+
+    # Maak een lege dictionary om de resultaten op te slaan
+    resultaat_dict = {}
+
+    # Genereer alle combinaties van 2 adressen
+    adressen_combinaties = combinations(set(address for adreslijst in data.values() for address in adreslijst), 2)
+    
+    # Itereer over de combinaties en tel hoe vaak elk adrespaar voorkomt
+    adrespaar_frequentie = {}
+    for adres1, adres2 in adressen_combinaties:
+        adrespaar_frequentie[(adres1, adres2)] = sum(1 for adreslijst in data.values() if adres1 in adreslijst and adres2 in adreslijst)
+    
+    # Controleer of er minimaal 2 bewoners zijn met hetzelfde adrespaar
+    for adrespaar, frequentie in adrespaar_frequentie.items():
+        if frequentie >= 2:
+            bewoners_met_adrespaar = [bewoner for bewoner, adressen in data.items() if set(adrespaar).issubset(adressen)]
+            resultaat_dict[adrespaar] = bewoners_met_adrespaar
+
+    # Loop door de sleutels en tel de lengte van de bijbehorende lijst (waarden)
+    for sleutel in resultaat_dict:
+        Wens1 += len(resultaat_dict[sleutel])
+    
+    
+    overeenkomende_gangen_teller = 0
+
+    # Loop door elke rij in de dataset
+    count = 0
+    for index, row in Oplossing.iterrows():
+        bewoner1 = row['Bewoner']
+        gangen1 = np.array([row['Voor'], row['Hoofd'], row['Na']])
+        
+        # Loop door de overige rijen in de dataset
+        for _, other_row in Oplossing.iloc[index+1:].iterrows():
+            bewoner2 = other_row['Bewoner']
+            gangen2 = np.array([other_row['Voor'], other_row['Hoofd'], other_row['Na']])
+        
             
+            # Als er minstens 2 overeenkomende gangen zijn, verhoog dan de teller
+            # if len(overeenkomende_gangen) >= 2:
+            #     overeenkomende_gangen_teller += 1
+
+    # Print het totale aantal keren dat aan de voorwaarde is voldaan
+    print("Aantal keren dat 2 verschillende bewoners minstens 2 dezelfde gangen hebben:", overeenkomende_gangen_teller)
+    
+    
     ## Wens 2
     
     df_koken_hetzelfde = Oplossing.merge(Kookte, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Gang'], how='inner')
@@ -62,21 +99,16 @@ def Wensen2(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     
     ## Wens 5
     
-    Tafelgenoot['Huisadres1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Huisadres'])
-    Tafelgenoot['Huisadres2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Huisadres'])
     Tafelgenoot['VoorBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Voor'])
     Tafelgenoot['VoorBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Voor'])
-    Tafelgenoot['VoorSamen'] = (Tafelgenoot['Huisadres1'] != Tafelgenoot['Huisadres2']) & (Tafelgenoot['VoorBewoner1'] == Tafelgenoot['VoorBewoner2'])
+    Tafelgenoot['VoorSamen'] = (Tafelgenoot['VoorBewoner1'] == Tafelgenoot['VoorBewoner2'])
     Tafelgenoot['HoofdBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Hoofd'])
     Tafelgenoot['HoofdBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Hoofd'])
-    Tafelgenoot['HoofdSamen'] = (Tafelgenoot['Huisadres1'] != Tafelgenoot['Huisadres2']) & (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
+    Tafelgenoot['HoofdSamen'] = (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
     Tafelgenoot['NaBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Na'])
     Tafelgenoot['NaBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Na'])
-    Tafelgenoot['NaSamen'] = (Tafelgenoot['Huisadres1'] != Tafelgenoot['Huisadres2']) & (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
+    Tafelgenoot['NaSamen'] = (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
     Wens5 = Tafelgenoot['VoorSamen'].sum() + Tafelgenoot['HoofdSamen'].sum() + Tafelgenoot['NaSamen'].sum()
-    
-    df = pd.DataFrame(Tafelgenoot)
-    df.to_excel('Tafelgenoot.xlsx', index=False)
     
     ## Kwaliteit oplossing
     
