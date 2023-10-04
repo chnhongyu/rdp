@@ -3,8 +3,8 @@ from collections import OrderedDict
 from itertools import combinations
 import numpy as np
 
-Filepath_Oplossing = 'Running Dinner eerste oplossing 2023 v2.xlsx'
-Filepath_Dataset = 'Running Dinner dataset 2023 v2.xlsx'
+Filepath_Oplossing = 'Running Dinner eerste oplossing 2022.xlsx'
+Filepath_Dataset = 'Running Dinner dataset 2022.xlsx'
 
 Oplossing = pd.read_excel(Filepath_Oplossing)
     
@@ -20,57 +20,22 @@ def Wensen2(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     ## Wens 1
         
     Wens1 = 0
-    data = {}
-    for index, row in Oplossing.iterrows():
-        bewoner = row['Bewoner']
-        voor = row['Voor']
-        hoofd = row['Hoofd']
-        na = row['Na']
-        data[bewoner] = [voor, hoofd, na]
-
-    # Maak een lege dictionary om de resultaten op te slaan
-    resultaat_dict = {}
-
-    # Genereer alle combinaties van 2 adressen
-    adressen_combinaties = combinations(set(address for adreslijst in data.values() for address in adreslijst), 2)
+    deelnemers_adressen = {}
     
-    # Itereer over de combinaties en tel hoe vaak elk adrespaar voorkomt
-    adrespaar_frequentie = {}
-    for adres1, adres2 in adressen_combinaties:
-        adrespaar_frequentie[(adres1, adres2)] = sum(1 for adreslijst in data.values() if adres1 in adreslijst and adres2 in adreslijst)
-    
-    # Controleer of er minimaal 2 bewoners zijn met hetzelfde adrespaar
-    for adrespaar, frequentie in adrespaar_frequentie.items():
-        if frequentie >= 2:
-            bewoners_met_adrespaar = [bewoner for bewoner, adressen in data.items() if set(adrespaar).issubset(adressen)]
-            resultaat_dict[adrespaar] = bewoners_met_adrespaar
-
-    # Loop door de sleutels en tel de lengte van de bijbehorende lijst (waarden)
-    for sleutel in resultaat_dict:
-        Wens1 += len(resultaat_dict[sleutel])
-    
-    
-    overeenkomende_gangen_teller = 0
-
-    # Loop door elke rij in de dataset
-    count = 0
-    for index, row in Oplossing.iterrows():
-        bewoner1 = row['Bewoner']
-        gangen1 = np.array([row['Voor'], row['Hoofd'], row['Na']])
+    # 1. Creëer een dictionary met de adressen voor elke deelnemer
+    for _, row in Oplossing.iterrows():
+        deelnemers_adressen[row['Bewoner']] = [row['Voor'], row['Hoofd'], row['Na']]
         
-        # Loop door de overige rijen in de dataset
-        for _, other_row in Oplossing.iloc[index+1:].iterrows():
-            bewoner2 = other_row['Bewoner']
-            gangen2 = np.array([other_row['Voor'], other_row['Hoofd'], other_row['Na']])
-        
-            
-            # Als er minstens 2 overeenkomende gangen zijn, verhoog dan de teller
-            # if len(overeenkomende_gangen) >= 2:
-            #     overeenkomende_gangen_teller += 1
+    # 2. Vergelijk de lijsten om te zien hoe vaak deelnemers dezelfde adressen hebben
+    deelnemers = list(deelnemers_adressen.keys())
 
-    # Print het totale aantal keren dat aan de voorwaarde is voldaan
-    print("Aantal keren dat 2 verschillende bewoners minstens 2 dezelfde gangen hebben:", overeenkomende_gangen_teller)
-    
+    for i in range(len(deelnemers)):
+        for j in range(i+1, len(deelnemers)):
+            # Tel hoeveel adressen de twee deelnemers gemeen hebben
+            common_adressen = len(set(deelnemers_adressen[deelnemers[i]]) & set(deelnemers_adressen[deelnemers[j]]))
+            if common_adressen > 1:
+                # Als ze op meer dan 1 adres gemeenschappelijk hebben, tel het
+                Wens1 += common_adressen - 1
     
     ## Wens 2
     

@@ -75,26 +75,28 @@ def Wensen(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     ## Wens 1
         
     Wens1 = 0
-    bewoner_data = {}
-    for index, row in Oplossing.iterrows():
-        bewoner = row['Bewoner']
-        voor = row['Voor']
-        hoofd = row['Hoofd']
-        na = row['Na']
-        bewoner_data[bewoner] = [voor, hoofd, na]
-    for bewoner1, waarden1 in bewoner_data.items():
-        for bewoner2, waarden2 in bewoner_data.items():
-            if bewoner1 != bewoner2:  
-                overeenkomende_waarden = set(waarden1) & set(waarden2)
-                if len(overeenkomende_waarden) == 2:
-                    Wens1 += 1
-                if len(overeenkomende_waarden) == 3:
-                    Wens1 += 2
-            
+    deelnemers_adressen = {}
+    
+    # 1. Creëer een dictionary met de adressen voor elke deelnemer
+    for _, row in Oplossing.iterrows():
+        deelnemers_adressen[row['Bewoner']] = [row['Voor'], row['Hoofd'], row['Na']]
+        
+    # 2. Vergelijk de lijsten om te zien hoe vaak deelnemers dezelfde adressen hebben
+    deelnemers = list(deelnemers_adressen.keys())
+
+    for i in range(len(deelnemers)):
+        for j in range(i+1, len(deelnemers)):
+            # Tel hoeveel adressen de twee deelnemers gemeen hebben
+            common_adressen = len(set(deelnemers_adressen[deelnemers[i]]) & set(deelnemers_adressen[deelnemers[j]]))
+            if common_adressen > 1:
+                # Als ze op meer dan 1 adres gemeenschappelijk hebben, tel het
+                Wens1 += common_adressen - 1
+    
     ## Wens 2
     
     df_koken_hetzelfde = Oplossing.merge(Kookte, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Gang'], how='inner')
-    Wens2 = df_koken_hetzelfde['Huisadres'].nunique()
+    df_koken_hoofdgerecht = df_koken_hetzelfde[df_koken_hetzelfde['Gang'] == 'Hoofd']
+    Wens2 = df_koken_hoofdgerecht['Huisadres'].nunique()
     
     ## Wens 3
     
