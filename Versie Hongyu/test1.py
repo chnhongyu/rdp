@@ -2,7 +2,12 @@ import pandas as pd
 import numpy as np
 
 dataset = 'Running Dinner dataset 2023 v2.xlsx'
+dataset2022= 'Running Dinner dataset 2022.xlsx'
+
 oplossing1 = 'Running Dinner eerste oplossing 2023 v2.xlsx'
+# oplossing2 = 'Running Dinner tweede oplossing 2023 v2.xlsx'
+# oplossing2022 = 'Running Dinner eerste oplossing 2022.xlsx'
+
 
 bewoners = pd.read_excel(dataset,sheet_name='Bewoners')
 adressen = pd.read_excel(dataset,sheet_name='Adressen')
@@ -12,7 +17,7 @@ kookte = pd.read_excel(dataset,sheet_name='Kookte vorig jaar',header = 1)
 tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header = 1)
 
 oplossing = pd.read_excel(oplossing1)
-df1 = oplossing
+df1 = oplossing.head(30)
 
 #Wens1?
 def calculate_repeated_meetings(df):
@@ -131,24 +136,3 @@ print(f"Aantal adressen die zowel vorig jaar als dit jaar een hoofdgerecht koken
 niet_voldaan = count_unsatisfied_preferences(df1, adressen)
 print(f"Aantal adressen waarvan de voorkeur niet is voldaan: {niet_voldaan}")
 
-def wens5(df1, tafelgenoot):
-    count = 0
-    
-    # Voor elk paar in tafelgenoot
-    for index, row in tafelgenoot.iterrows():
-        bewoner1 = row['Bewoner1']
-        bewoner2 = row['Bewoner2']
-        
-        # Krijg de adressen voor elke bewoner uit df1
-        bewoner1_adressen = df1[df1['Bewoner'] == bewoner1][['Voor', 'Hoofd', 'Na']].values.flatten()
-        bewoner2_adressen = df1[df1['Bewoner'] == bewoner2][['Voor', 'Hoofd', 'Na']].values.flatten()
-        
-        # Check voor overlap
-        overlap = set(bewoner1_adressen).intersection(bewoner2_adressen)
-        
-        if overlap:
-            count += 1
-
-    return f"Aantal keer dat deelnemers wederom als vorig jaar samen eten: {count}"
-
-print(wens5(df1,tafelgenoot))
