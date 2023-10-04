@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 dataset = 'Running Dinner dataset 2023 v2.xlsx'
-oplossing1 = 'Running Dinner eerste oplossing 2023 v2.xlsx'
+oplossing1 = 'Running Dinner tweede oplossing 2023 v2.xlsx'
 
 
 bewoners = pd.read_excel(dataset,sheet_name='Bewoners')
@@ -30,7 +30,7 @@ def count_matching_tafelgenoten(df1, tafelgenoot):
     
     # Stap 2: Vergelijk de resultaten met tafelgenoot
     merged_df = pd.merge(tafelgenoten_df, tafelgenoot, how='inner', left_on=['Bewoner1', 'Bewoner2'], right_on=['Bewoner1', 'Bewoner2'])
-    print(merged_df)
+    # print(merged_df)
     return len(merged_df)
 
 # Voorbeeld van hoe de functie aan te roepen

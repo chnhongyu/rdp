@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 
 dataset = 'Running Dinner dataset 2023 v2.xlsx'
-dataset2022= 'Running Dinner dataset 2022.xlsx'
 
 oplossing1 = 'Running Dinner eerste oplossing 2023 v2.xlsx'
 # oplossing2 = 'Running Dinner tweede oplossing 2023 v2.xlsx'
@@ -17,9 +16,9 @@ kookte = pd.read_excel(dataset,sheet_name='Kookte vorig jaar',header = 1)
 tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header = 1)
 
 oplossing = pd.read_excel(oplossing1)
-df1 = oplossing.head(30)
+df1 = oplossing
 
-#Wens1?
+#Wens1 check
 def calculate_repeated_meetings(df):
     #Wens 1
     deelnemers_adressen = {}
@@ -42,32 +41,44 @@ def calculate_repeated_meetings(df):
 
     return repeated_meetings
 
-#Wens2?
-def herhaling_hoofdgerecht(df1, kookte):
-    # Filter de adressen uit de 'kookte' dataframe die vorig jaar 'Hoofd' hebben gekookt
-    vorig_jaar_hoofd = kookte[kookte['Gang'] == 'Hoofd']['Huisadres']
+#Wens1:
+total_repeated = calculate_repeated_meetings(df1)
+print(f"Totaal aantal herhaalde ontmoetingen: {total_repeated}")
+
+
+# #Wens2 fout
+# def herhaling_hoofdgerecht(df1, kookte):
+#     # Filter de adressen uit de 'kookte' dataframe die vorig jaar 'Hoofd' hebben gekookt
+#     vorig_jaar_hoofd = kookte[kookte['Gang'] == 'Hoofd']['Huisadres']
     
-    # Check in de 'df1' dataframe welke van deze adressen dit jaar opnieuw 'Hoofd' koken
-    dit_jaar_hoofd = df1[(df1['Huisadres'].isin(vorig_jaar_hoofd)) & (df1['kookt'] == 'Hoofd')]
+#     # Check in de 'df1' dataframe welke van deze adressen dit jaar opnieuw 'Hoofd' koken
+#     dit_jaar_hoofd = df1[(df1['Huisadres'].isin(vorig_jaar_hoofd)) & (df1['kookt'] == 'Hoofd')]
 
-    return len(dit_jaar_hoofd)
+#     return len(dit_jaar_hoofd)
 
-#Wens3?
-def count_unsatisfied_preferences(df1, adressen):
-    # Filter adressen met een voorkeur
-    voorkeur_adressen = adressen.dropna(subset=['Voorkeur gang'])
+# #Wens3 fout
+# def count_unsatisfied_preferences(df1, adressen):
+#     # Filter adressen met een voorkeur
+#     voorkeur_adressen = adressen.dropna(subset=['Voorkeur gang'])
 
-    # Merge de dataframes op 'Huisadres'
-    merged_df = pd.merge(voorkeur_adressen, df1[['Huisadres', 'kookt']], on='Huisadres', how='inner')
+#     # Merge de dataframes op 'Huisadres'
+#     merged_df = pd.merge(voorkeur_adressen, df1[['Huisadres', 'kookt']], on='Huisadres', how='inner')
 
-    # Voeg een boolean kolom toe die aangeeft of de voorkeur wordt voldaan
-    merged_df['voorkeur_voldaan'] = merged_df['Voorkeur gang'] == merged_df['kookt']
+#     # Voeg een boolean kolom toe die aangeeft of de voorkeur wordt voldaan
+#     merged_df['voorkeur_voldaan'] = merged_df['Voorkeur gang'] == merged_df['kookt']
 
-    # Tel de aantal False waarden in de 'voorkeur_voldaan' kolom
-    unsatisfied_count = (~merged_df['voorkeur_voldaan']).sum()
+#     # Tel de aantal False waarden in de 'voorkeur_voldaan' kolom
+#     unsatisfied_count = (~merged_df['voorkeur_voldaan']).sum()
 
-    return unsatisfied_count
+#     return unsatisfied_count
 
+
+
+# aantal_herhalingen = herhaling_hoofdgerecht(df1, kookte)
+# print(f"Aantal adressen die zowel vorig jaar als dit jaar een hoofdgerecht koken: {aantal_herhalingen}")
+
+# niet_voldaan = count_unsatisfied_preferences(df1, adressen)
+# print(f"Aantal adressen waarvan de voorkeur niet is voldaan: {niet_voldaan}")
 
 
 
@@ -127,12 +138,4 @@ def new_state_pair(df1, paar):
     return df_new
 
 
-total_repeated = calculate_repeated_meetings(df1)
-print(f"Totaal aantal herhaalde ontmoetingen: {total_repeated}")
-
-aantal_herhalingen = herhaling_hoofdgerecht(df1, kookte)
-print(f"Aantal adressen die zowel vorig jaar als dit jaar een hoofdgerecht koken: {aantal_herhalingen}")
-
-niet_voldaan = count_unsatisfied_preferences(df1, adressen)
-print(f"Aantal adressen waarvan de voorkeur niet is voldaan: {niet_voldaan}")
 
