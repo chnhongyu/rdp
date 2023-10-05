@@ -214,7 +214,7 @@ def Constraints(Dataset, df_oplossing):
 
 #-----------------------------
 
-def simulated_annealing(df, df_paar, max_iterations=100, start_temp=100, alpha=0.995):
+def simulated_annealing(df, df_paar, max_iterations=1000, start_temp=1000, alpha=0.995):
     current_df = df.copy()
     current_cost = Wens(current_df, df_paar)  # Aangenomen dat je Wens functie het totale aantal wensen retourneert dat niet wordt voldaan.
     
