@@ -3,7 +3,7 @@ from collections import OrderedDict
 from itertools import combinations
 import numpy as np
 
-Filepath_Oplossing = 'oplossing1.xlsx'
+Filepath_Oplossing = 'Running Dinner eerste oplossing 2023 v2.xlsx'
 Filepath_Dataset = 'Running Dinner dataset 2023 v2.xlsx'
 
 Oplossing = pd.read_excel(Filepath_Oplossing)
@@ -64,16 +64,19 @@ def Wensen2(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     
     ## Wens 5
     
-    Tafelgenoot['VoorBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Voor'])
-    Tafelgenoot['VoorBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Voor'])
-    Tafelgenoot['VoorSamen'] = (Tafelgenoot['VoorBewoner1'] == Tafelgenoot['VoorBewoner2'])
-    Tafelgenoot['HoofdBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Hoofd'])
-    Tafelgenoot['HoofdBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Hoofd'])
-    Tafelgenoot['HoofdSamen'] = (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
-    Tafelgenoot['NaBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Na'])
-    Tafelgenoot['NaBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Na'])
-    Tafelgenoot['NaSamen'] = (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
-    Wens5 = Tafelgenoot['VoorSamen'].sum() + Tafelgenoot['HoofdSamen'].sum() + Tafelgenoot['NaSamen'].sum()
+    tafelgenoten_list = []
+    
+    # Stap 1: Bepaal de tafelgenoten van dit jaar
+    for gang in ['Voor', 'Hoofd', 'Na']:
+        groepen = Oplossing.groupby(gang)['Bewoner'].apply(list)
+        for bewoners in groepen:
+            tafelgenoten_list.extend([(bewoner, genoot) for bewoner in bewoners for genoot in bewoners if bewoner != genoot])
+    
+    tafelgenoten_df = pd.DataFrame(tafelgenoten_list, columns=['Bewoner1', 'Bewoner2'])
+    
+    # Stap 2: Vergelijk de resultaten met tafelgenoot
+    merged_df = pd.merge(tafelgenoten_df, Tafelgenoot, how='inner', left_on=['Bewoner1', 'Bewoner2'], right_on=['Bewoner1', 'Bewoner2'])
+    Wens5 = len(merged_df)
     
     ## Kwaliteit oplossing
     
