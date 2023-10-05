@@ -119,19 +119,22 @@ def Wensen(Oplossing, Kookte, Adressen, Buren, Tafelgenoot):
     
     ## Wens 5
     
-    Tafelgenoot['VoorBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Voor'])
-    Tafelgenoot['VoorBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Voor'])
-    Tafelgenoot['VoorSamen'] = (Tafelgenoot['VoorBewoner1'] == Tafelgenoot['VoorBewoner2'])
-    Tafelgenoot['HoofdBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Hoofd'])
-    Tafelgenoot['HoofdBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Hoofd'])
-    Tafelgenoot['HoofdSamen'] = (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
-    Tafelgenoot['NaBewoner1'] = Tafelgenoot['Bewoner1'].map(Oplossing.set_index('Bewoner')['Na'])
-    Tafelgenoot['NaBewoner2'] = Tafelgenoot['Bewoner2'].map(Oplossing.set_index('Bewoner')['Na'])
-    Tafelgenoot['NaSamen'] = (Tafelgenoot['HoofdBewoner1'] == Tafelgenoot['HoofdBewoner2'])
-    Wens5 = Tafelgenoot['VoorSamen'].sum() + Tafelgenoot['HoofdSamen'].sum() + Tafelgenoot['NaSamen'].sum()
-
+    tafelgenoten_list = []
+    
+    # Stap 1: Bepaal de tafelgenoten van dit jaar
+    for gang in ['Voor', 'Hoofd', 'Na']:
+        groepen = Oplossing.groupby(gang)['Bewoner'].apply(list)
+        for bewoners in groepen:
+            tafelgenoten_list.extend([(bewoner, genoot) for bewoner in bewoners for genoot in bewoners if bewoner != genoot])
+    
+    tafelgenoten_df = pd.DataFrame(tafelgenoten_list, columns=['Bewoner1', 'Bewoner2'])
+    
+    # Stap 2: Vergelijk de resultaten met tafelgenoot
+    merged_df = pd.merge(tafelgenoten_df, Tafelgenoot, how='inner', left_on=['Bewoner1', 'Bewoner2'], right_on=['Bewoner1', 'Bewoner2'])
+    Wens5 = len(merged_df)
+    
     ## Kwaliteit oplossing
     
-    Niveau = Wens1 + Wens2 + Wens3 + Wens4 + Wens5
+    Niveau = 2*Wens1 + 10*Wens2 + 10*Wens3 + 3*Wens4 + 1*Wens5
     
     return Niveau 
