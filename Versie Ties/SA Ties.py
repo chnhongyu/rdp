@@ -4,12 +4,10 @@ import math
 from MainTies import Constraints
 from MainTies import Wensen
 
-# Definieer een functie om de kost te berekenen die je wilt minimaliseren
-
     # In dit voorbeeld berekenen we de kost als het aantal unieke waarden in de geselecteerde kolommen
 
 # Implementeer simulated annealing
-def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, temperatuur=1000, cool_rate=0.999, iteraties=500):
+def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, temperatuur=1000, cool_rate=0.999, iteraties=3000):
        
     kolommen = ['Voor', 'Hoofd', 'Na']
     Oplossing = pd.read_excel(Filepath_Oplossing)
@@ -78,4 +76,4 @@ print("Beste kost:", beste_kost)
 print("Toegelaten:", Constraints('Running Dinner dataset 2023 v2.xlsx', beste_oplossing))
 
 df = pd.DataFrame(beste_oplossing)
-df.to_excel('oplossing1.xlsx', index=False)
+df.to_excel('BesteOplossing1.xlsx', index=False)
