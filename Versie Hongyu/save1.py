@@ -7,13 +7,13 @@ import math
 dataset = 'Running Dinner dataset 2023 v2.xlsx'
 oplossing1 = 'Running Dinner eerste oplossing 2023 v2.xlsx'
 
-# DFs van dataset
-bewoners = pd.read_excel(dataset,sheet_name='Bewoners')
-adressen = pd.read_excel(dataset,sheet_name='Adressen')
-paar = pd.read_excel(dataset,sheet_name='Paar blijft bij elkaar',header = 1)
-buren = pd.read_excel(dataset,sheet_name='Buren',header = 1)
-kookte = pd.read_excel(dataset,sheet_name='Kookte vorig jaar',header = 1)
-tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header = 1)
+# # DFs van dataset
+# bewoners = pd.read_excel(dataset,sheet_name='Bewoners')
+# adressen = pd.read_excel(dataset,sheet_name='Adressen')
+# paar = pd.read_excel(dataset,sheet_name='Paar blijft bij elkaar',header = 1)
+# buren = pd.read_excel(dataset,sheet_name='Buren',header = 1)
+# kookte = pd.read_excel(dataset,sheet_name='Kookte vorig jaar',header = 1)
+# tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header = 1)
 # Feasible solution
 oplossing = pd.read_excel(oplossing1)
 
@@ -63,18 +63,18 @@ def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
 
         # Debug-prints
         # print(f"Paar gevonden: {bewoner1} en {bewoner2}")
-        # print(f"Adressen vóór wisseling: {bewoner1}: {adresA}, {bewoner2}: {adresA}")
+        # print(f"adressen vóór wisseling: {bewoner1}: {adresA}, {bewoner2}: {adresA}")
         # print(f"Wisselend met paar: {df.loc[bewoner3_index, 'Bewoner']} en {df.loc[bewoner4_index, 'Bewoner']}")
-        # print(f"Adressen vóór wisseling: {df.loc[bewoner3_index, 'Bewoner']}: {adresB}, {df.loc[bewoner4_index, 'Bewoner']}: {adresB}")
+        # print(f"adressen vóór wisseling: {df.loc[bewoner3_index, 'Bewoner']}: {adresB}, {df.loc[bewoner4_index, 'Bewoner']}: {adresB}")
 
-        # Adressen wisselen
+        # adressen wisselen
         df.loc[bewoner1_index, random_gang] = adresB
         df.loc[bewoner2_index, random_gang] = adresB
         df.loc[bewoner3_index, random_gang] = adresA
         df.loc[bewoner4_index, random_gang] = adresA
 
         # Debug-prints na wisseling
-        # print(f"Adressen na wisseling: {bewoner1}: {df.loc[bewoner1_index, random_gang]}, {bewoner2}: {df.loc[bewoner2_index, random_gang]}, {df.loc[bewoner3_index, 'Bewoner']}: {df.loc[bewoner3_index, random_gang]}, {df.loc[bewoner4_index, 'Bewoner']}: {df.loc[bewoner4_index, random_gang]}")
+        # print(f"adressen na wisseling: {bewoner1}: {df.loc[bewoner1_index, random_gang]}, {bewoner2}: {df.loc[bewoner2_index, random_gang]}, {df.loc[bewoner3_index, 'Bewoner']}: {df.loc[bewoner3_index, random_gang]}, {df.loc[bewoner4_index, 'Bewoner']}: {df.loc[bewoner4_index, random_gang]}")
 
     else:
         available_indices = df.index.difference(kokers_indices).difference([bewoner1_index]).tolist()
@@ -84,7 +84,6 @@ def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
         df.loc[bewoner2_index, random_gang] = bewoner1
 
     return df
-
 
 
 #------------------------------
@@ -112,13 +111,32 @@ def Wens1(df):
     return repeated_meetings
 
 #Wens2
-
-
-#Wens3
-
-
-#Wens4
-
+def Wens2(df,kookte):
+    df_koken_hetzelfde = df.merge(kookte, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Gang'], how='inner')
+    df_koken_hoofdgerecht = df_koken_hetzelfde[df_koken_hetzelfde['Gang'] == 'Hoofd']
+    wens2 = df_koken_hoofdgerecht['Huisadres'].nunique()
+    return wens2
+    
+## Wens 3
+def Wens3(df,adressen):
+    df_voorkeur = adressen.dropna(subset=['Voorkeur gang'])
+    df_voorkeur_hetzelfde = df.merge(df_voorkeur, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Voorkeur gang'], how='inner')
+    wens3 = len(df_voorkeur) - df_voorkeur_hetzelfde['Huisadres'].nunique()
+    return wens3
+    
+## Wens 4
+def Wens4(df,buren):
+    buren['VoorBewoner1'] = buren['Bewoner1'].map(df.set_index('Bewoner')['Voor'])
+    buren['VoorBewoner2'] = buren['Bewoner2'].map(df.set_index('Bewoner')['Voor'])
+    buren['VoorSamen'] = (buren['VoorBewoner1'] == buren['VoorBewoner2'])
+    buren['HoofdBewoner1'] = buren['Bewoner1'].map(df.set_index('Bewoner')['Hoofd'])
+    buren['HoofdBewoner2'] = buren['Bewoner2'].map(df.set_index('Bewoner')['Hoofd'])
+    buren['HoofdSamen'] = (buren['HoofdBewoner1'] == buren['HoofdBewoner2'])
+    buren['NaBewoner1'] = buren['Bewoner1'].map(df.set_index('Bewoner')['Na'])
+    buren['NaBewoner2'] = buren['Bewoner2'].map(df.set_index('Bewoner')['Na'])
+    buren['NaSamen'] = (buren['NaBewoner1'] == buren['NaBewoner2'])
+    wens4 = buren['VoorSamen'].sum() + buren['HoofdSamen'].sum() + buren['NaSamen'].sum()
+    return wens4
 
 #Wens5
 def Wens5(df1, tafelgenoot):
@@ -139,11 +157,14 @@ def Wens5(df1, tafelgenoot):
 
 #-----------------------------
 #Wensen bijelkaar
-def Wens(df, tafelgenoot):
+def Wens(df,kookte,adressen,buren,tafelgenoot):
     resultaat_wens1 = Wens1(df)
-    resultaat_wens5 = Wens5(df, tafelgenoot)
-
-    totaal = resultaat_wens1 + resultaat_wens5
+    resultaat_wens2 = Wens2(df,kookte)
+    resultaat_wens3 = Wens3(df,adressen)
+    resultaat_wens4 = Wens4(df,buren)
+    resultaat_wens5 = Wens5(df,tafelgenoot)
+    
+    totaal = resultaat_wens1 + resultaat_wens2 + resultaat_wens3 + resultaat_wens4 + resultaat_wens5
     return totaal
 
 #-----------------------------
@@ -153,9 +174,9 @@ def Constraints(Dataset, df_oplossing):
     ## Inlezen van dataset en oplossing
     
     Bewoners = pd.read_excel(Dataset, sheet_name = 'Bewoners')
-    Adressen = pd.read_excel(Dataset, sheet_name = 'Adressen')
+    adressen = pd.read_excel(Dataset, sheet_name = 'Adressen')
     Paar = pd.read_excel(Dataset, sheet_name = 'Paar blijft bij elkaar', header = 1)
-    Buren = pd.read_excel(Dataset, sheet_name = 'Buren', header = 1)
+    buren = pd.read_excel(Dataset, sheet_name = 'Buren', header = 1)
     Kookte = pd.read_excel(Dataset, sheet_name = 'Kookte vorig jaar', header = 1)
     Tafelgenoot = pd.read_excel(Dataset, sheet_name = 'Tafelgenoot vorig jaar', header = 1)    
     
@@ -198,8 +219,8 @@ def Constraints(Dataset, df_oplossing):
         if rij['Huisadres'] not in adres_count:
             adres_count[rij['Huisadres']] = rij['aantal'] 
     for a in adres_count:
-        lb = Adressen[ Adressen['Huisadres']== a ]['Min groepsgrootte'].values
-        ub = Adressen[ Adressen['Huisadres']== a ]['Max groepsgrootte'].values
+        lb = adressen[ adressen['Huisadres']== a ]['Min groepsgrootte'].values
+        ub = adressen[ adressen['Huisadres']== a ]['Max groepsgrootte'].values
         if adres_count[a]>ub or adres_count[a]<lb:
             print('Er wordt niet voldaan aan Constraint 4')
     
@@ -214,9 +235,16 @@ def Constraints(Dataset, df_oplossing):
 
 #-----------------------------
 
-def simulated_annealing(df, df_paar, max_iterations=1000, start_temp=1000, alpha=0.995):
+def simulated_annealing(df, dataset, max_iterations=1000, start_temp=2000, alpha=0.99):
+    bewoners = pd.read_excel(dataset,sheet_name='Bewoners')
+    adressen = pd.read_excel(dataset,sheet_name='Adressen')
+    paar = pd.read_excel(dataset,sheet_name='Paar blijft bij elkaar',header = 1)
+    buren = pd.read_excel(dataset,sheet_name='Buren',header = 1)
+    kookte = pd.read_excel(dataset,sheet_name='Kookte vorig jaar',header = 1)
+    tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header = 1)
+
     current_df = df.copy()
-    current_cost = Wens(current_df, df_paar)  # Aangenomen dat je Wens functie het totale aantal wensen retourneert dat niet wordt voldaan.
+    current_cost = Wens(current_df,kookte,adressen,buren,tafelgenoot)  # Aangenomen dat je Wens functie het totale aantal wensen retourneert dat niet wordt voldaan.
     
     best_df = current_df.copy()
     best_cost = current_cost
@@ -224,8 +252,8 @@ def simulated_annealing(df, df_paar, max_iterations=1000, start_temp=1000, alpha
     temp = start_temp
 
     for iteration in range(max_iterations):
-        new_df = switch_addresses(current_df, df_paar)
-        new_cost = Wens(new_df, df_paar)
+        new_df = switch_addresses(current_df, paar)
+        new_cost = Wens(new_df,kookte,adressen,buren,tafelgenoot)
         
         cost_diff = new_cost - current_cost
         
@@ -242,8 +270,9 @@ def simulated_annealing(df, df_paar, max_iterations=1000, start_temp=1000, alpha
     
     return best_df, best_cost
 
-result_df, result_cost = simulated_annealing(df,paar)
+result_df, result_cost = simulated_annealing(df,dataset)
 
 
 print(result_cost)
 print(Constraints(dataset,result_df))
+print(Constraints(dataset,df))
