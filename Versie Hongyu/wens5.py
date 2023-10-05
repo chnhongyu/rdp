@@ -26,11 +26,11 @@ def count_matching_tafelgenoten(df1, tafelgenoot):
 
     tafelgenoten_list = sum([find_tafelgenoten(gang) for gang in ['Voor', 'Hoofd', 'Na']], [])
     tafelgenoten_df = pd.DataFrame(tafelgenoten_list, columns=['Bewoner1', 'Bewoner2'])
-    # print(tafelgenoten_df)
+    print(tafelgenoten_df)
     
     # Stap 2: Vergelijk de resultaten met tafelgenoot
     merged_df = pd.merge(tafelgenoten_df, tafelgenoot, how='inner', left_on=['Bewoner1', 'Bewoner2'], right_on=['Bewoner1', 'Bewoner2'])
-    # print(merged_df)
+    print(merged_df)
     return len(merged_df)
 
 # Voorbeeld van hoe de functie aan te roepen
