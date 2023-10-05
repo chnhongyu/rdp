@@ -13,7 +13,7 @@ tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header =
 
 oplossing = pd.read_excel(oplossing1)
 
-df1 = oplossing.head(20)
+df1 = oplossing
 
 import random
 
