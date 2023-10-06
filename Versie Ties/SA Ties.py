@@ -4,9 +4,6 @@ import math
 from MainTies import Constraints
 from MainTies import Wensen
 
-    # In dit voorbeeld berekenen we de kost als het aantal unieke waarden in de geselecteerde kolommen
-
-# Implementeer simulated annealing
 def simulated_annealing(Filepath_Dataset, Filepath_Oplossing, temperatuur=1000, cool_rate=0.999, iteraties=3000):
        
     kolommen = ['Voor', 'Hoofd', 'Na']

@@ -25,37 +25,38 @@ def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
     df_paar is input uit de dataset om de paren te identificeren.
 
     Er wordt hier eerst een random gang geselecteerd uit "Voor" "Hoofd" "Na".
-    Vervolgens neemt hij de index voor twee deelnemers.
+    Vervolgens worden er twee random bewoners geselecteerd en de 
+    bijbehoorende adressen op die gang en deze worden omgewisseld.
     Er wordt rekening gehouden met welke gang de deelnemer voor gaat bereiden.
-    Die adres wordt niet geselecteerd om te wisselen.
-    Zodat constraint 3 niet wordt overschreden.
+    Dit adres wordt niet geselecteerd om te wisselen, zodat constraint 3 niet wordt overschreden.
 
-    Paar houden we hier buiten beschouwing vanwegen feasiblity. Zij worden niet verwisselt.
+    Paar houden we hier buiten beschouwing vanwegen feasiblity. Zij worden niet verwisseld.
     '''
     random_gang = random.choice(gangen)
 
-    kokers_indices = df[df["kookt"] == random_gang].index.tolist()
+    niet_toegelaten_indices = df[df["kookt"] == random_gang].index.tolist()
     
     # Maak een lijst van alle bewoners in de paren
     bewoners_in_paren = df_paar['Bewoner1'].tolist() + df_paar['Bewoner2'].tolist()
     
     # Verkrijg indices van bewoners in paren
-    indices_in_paren = df[df['Bewoner'].isin(bewoners_in_paren)].index.tolist()
+    paren_indices = df[df['Bewoner'].isin(bewoners_in_paren)].index.tolist()
 
     # Verwijder indices van bewoners die in een paar zitten en die koken
-    niet_kokers_indices = list(set(df.index) - set(kokers_indices) - set(indices_in_paren))
+    toegelaten_indices = list(set(df.index) - set(niet_toegelaten_indices) - set(paren_indices))
 
-    if not niet_kokers_indices:
-        print("Er zijn geen beschikbare niet-kokers die niet in een paar zitten.")
+    if not toegelaten_indices:
+        print("Error; geen toegelaten oplossing")
         return df
 
-    bewoner1_index = random.choice(niet_kokers_indices)
+    bewoner1_index = random.choice(toegelaten_indices)
     bewoner1 = df.loc[bewoner1_index, "Bewoner"]
     
-    beschikbare_indices = list(set(df.index) - set(kokers_indices) - set([bewoner1_index]) - set(indices_in_paren))
+    # Hier wordt bewoner1 uitgesloten
+    beschikbare_indices = list(set(df.index) - set(niet_toegelaten_indices) - set([bewoner1_index]) - set(paren_indices))
     
     if not beschikbare_indices:
-        print("Er zijn geen andere beschikbare niet-kokers om mee te wisselen.")
+        print("Error; geen toegelaten oplossing")
         return df
 
     bewoner2_index = random.choice(beschikbare_indices)
@@ -72,58 +73,65 @@ def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
 
     return df
 
-
-# wens functies rekent alleen over df en returnt een parameter
 #------------------------------------------------------------------------------------
-#Wens1 - Aantal herhalingen. Prioriteit 1
+# Wens1 - Aantal herhalingen. Prioriteit 1
 def Wens1(df):
     '''
     Wens1 eist als input df, een feasible solution.
     Wens1 gaat kijken hoevaak in de df, de wens is overschreden.
     Returnt een parameter.
     '''
-    #Wens 1
     deelnemers_adressen = {}
     
     # 1. Creëer een dictionary met de adressen voor elke deelnemer
-    for _, row in df.iterrows():
-        deelnemers_adressen[row['Bewoner']] = [row['Voor'], row['Hoofd'], row['Na']]
+    for _, rij in df.iterrows():
+        deelnemers_adressen[rij['Bewoner']] = [rij['Voor'], rij['Hoofd'], rij['Na']]
         
     # 2. Vergelijk de lijsten om te zien hoe vaak deelnemers dezelfde adressen hebben
-    repeated_meetings = 0
+    aantal_fouten = 0
     deelnemers = list(deelnemers_adressen.keys())
 
     for i in range(len(deelnemers)):
         for j in range(i+1, len(deelnemers)):
             # Tel hoeveel adressen de twee deelnemers gemeen hebben
-            common_adressen = len(set(deelnemers_adressen[deelnemers[i]]) & set(deelnemers_adressen[deelnemers[j]]))
-            if common_adressen > 1:
-                # Als ze op meer dan 1 adres gemeenschappelijk hebben, tel het
-                repeated_meetings += common_adressen - 1
+            overeenkomende_adressen = len(set(deelnemers_adressen[deelnemers[i]]) & set(deelnemers_adressen[deelnemers[j]]))
+            if overeenkomende_adressen > 1:
+                # Als ze op meer dan 1 adres gemeenschappelijk eten, tel het op
+                aantal_fouten += overeenkomende_adressen - 1
 
-    return repeated_meetings
+    return aantal_fouten
 
-#Wens2 - Hoofdgerecht vorig jaar. Prioriteit 2
+# Wens2 - Hoofdgerecht vorig jaar. Prioriteit 2
 def Wens2(df,kookte):
     '''
-    Wens2 eist als input df, een feasible solution. En df_kookte uit de dataset
+    Wens2 eist als input df, een feasible solution en df_kookte uit de dataset.
     Wens2 gaat kijken hoevaak in de df, de wens is overschreden.
     Returnt een parameter.
     '''
     df_koken_hetzelfde = df.merge(kookte, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Gang'], how='inner')
     df_koken_hoofdgerecht = df_koken_hetzelfde[df_koken_hetzelfde['Gang'] == 'Hoofd']
-    wens2 = df_koken_hoofdgerecht['Huisadres'].nunique()
-    return wens2
+    aantal_fouten = df_koken_hoofdgerecht['Huisadres'].nunique()
+    return aantal_fouten
     
-## Wens 3 - Adres krijgt zijn opgegeven voorkeur. Prioriteit 3
+# Wens 3 - Adres krijgt zijn opgegeven voorkeur. Prioriteit 3
 def Wens3(df,adressen):
+    '''
+    Wens3 eist als input df, een feasible solution en df_adressen uit de dataset.
+    Wens3 gaat kijken hoevaak in de df, de wens is overschreden.
+    Returnt een parameter.
+    '''
     df_voorkeur = adressen.dropna(subset=['Voorkeur gang'])
     df_voorkeur_hetzelfde = df.merge(df_voorkeur, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Voorkeur gang'], how='inner')
-    wens3 = len(df_voorkeur) - df_voorkeur_hetzelfde['Huisadres'].nunique()
-    return wens3
+    aantal_fouten = len(df_voorkeur) - df_voorkeur_hetzelfde['Huisadres'].nunique()
+    return aantal_fouten
     
-## Wens 4 - Aantal buren aan tafel. Prioriteit 5
+# Wens 4 - Aantal buren aan tafel. Prioriteit 5
 def Wens4(df,buren):
+    '''
+    Wens4 eist als input df, een feasible solution en df_buren uit de dataset.
+    Wens5 gaat kijken hoevaak in de df, de wens is overschreden.
+    Returnt een parameter.
+    '''
     buren['VoorBewoner1'] = buren['Bewoner1'].map(df.set_index('Bewoner')['Voor'])
     buren['VoorBewoner2'] = buren['Bewoner2'].map(df.set_index('Bewoner')['Voor'])
     buren['VoorSamen'] = (buren['VoorBewoner1'] == buren['VoorBewoner2'])
@@ -133,33 +141,34 @@ def Wens4(df,buren):
     buren['NaBewoner1'] = buren['Bewoner1'].map(df.set_index('Bewoner')['Na'])
     buren['NaBewoner2'] = buren['Bewoner2'].map(df.set_index('Bewoner')['Na'])
     buren['NaSamen'] = (buren['NaBewoner1'] == buren['NaBewoner2'])
-    wens4 = buren['VoorSamen'].sum() + buren['HoofdSamen'].sum() + buren['NaSamen'].sum()
-    return wens4
+    aantal_fouten = buren['VoorSamen'].sum() + buren['HoofdSamen'].sum() + buren['NaSamen'].sum()
+    return aantal_fouten
 
-#Wens5 - Tafelgenoot vorig jaar. Prioriteit 4
+# Wens5 - Tafelgenoot vorig jaar. Prioriteit 4
 def Wens5(df1, tafelgenoot):
     '''
-    Wens5 eist als input df, een feasible solution. En df_tabelgenoot uit de dataset.
+    Wens5 eist als input df, een feasible solution en df_tafelgenoot uit de dataset.
     Wens5 gaat kijken hoevaak in de df, de wens is overschreden.
     Returnt een parameter.
     '''
     # Stap 1: Bepaal de tafelgenoten van dit jaar
-    def find_tafelgenoten(gang):
+    def vind_tafelgenoten(gang):
         groepen = df1.groupby(gang)['Bewoner'].apply(list)
         tafelgenoten = []
         for bewoners in groepen:
-            tafelgenoten.extend([(bewoner, genoot) for bewoner in bewoners for genoot in bewoners if bewoner != genoot])
+            tafelgenoten.extend([(bewoner, tafelgenoot) for bewoner in bewoners for tafelgenoot in bewoners if bewoner != tafelgenoot])
         return tafelgenoten
 
-    tafelgenoten_list = sum([find_tafelgenoten(gang) for gang in ['Voor', 'Hoofd', 'Na']], [])
-    tafelgenoten_df = pd.DataFrame(tafelgenoten_list, columns=['Bewoner1', 'Bewoner2'])
+    tafelgenoten_lijst = sum([vind_tafelgenoten(gang) for gang in ['Voor', 'Hoofd', 'Na']], [])
+    tafelgenoten_df = pd.DataFrame(tafelgenoten_lijst, columns=['Bewoner1', 'Bewoner2'])
     
     # Stap 2: Vergelijk de resultaten met tafelgenoot
-    merged_df = pd.merge(tafelgenoten_df, tafelgenoot, how='inner', left_on=['Bewoner1', 'Bewoner2'], right_on=['Bewoner1', 'Bewoner2'])
-    return len(merged_df)
+    df_overlap = pd.merge(tafelgenoten_df, tafelgenoot, how='inner', left_on=['Bewoner1', 'Bewoner2'], right_on=['Bewoner1', 'Bewoner2'])
+    aantal_fouten = len(df_overlap)
+    return aantal_fouten
 
 #------------------------------------------------------------------------------------
-#Wensen bijelkaar
+# Wensen bijelkaar
 def Wens(df,kookte,adressen,buren,tafelgenoot):
     '''
     Wens functie sommeert alle wensen 1 tot en met 5 bijelkaar.
@@ -175,12 +184,11 @@ def Wens(df,kookte,adressen,buren,tafelgenoot):
 
     
     totaal = resultaat_wens1 + resultaat_wens2 + resultaat_wens3 + resultaat_wens4 + resultaat_wens5
-    totaal = totaal
 
     return totaal
 
 #------------------------------------------------------------------------------------
-#Constraint Check
+# Constraint Check
 def Constraints(df,dataset):
     '''
     Constraint functie gaat de df oplossing controleren of het voldoet aan de gegeven constraints uit de dataset.
@@ -189,7 +197,7 @@ def Constraints(df,dataset):
     Als er iets niet wordt voldaan, dan returnt hij een print en bijbehorende constraint.
     '''
     
-    ## Inlezen van dataset en oplossing
+    # Inlezen van dataset en oplossing
     
     Bewoners = pd.read_excel(dataset, sheet_name = 'Bewoners')
     adressen = pd.read_excel(dataset, sheet_name = 'Adressen')
@@ -198,8 +206,9 @@ def Constraints(df,dataset):
     Kookte = pd.read_excel(dataset, sheet_name = 'Kookte vorig jaar', header = 1)
     Tafelgenoot = pd.read_excel(dataset, sheet_name = 'Tafelgenoot vorig jaar', header = 1)    
     
-    ## Constraint 1
+    # Constraint 1
     
+    # Er wordt gekeken of elke deelnemer in totaal op 3 verschillende adressen een gang eet.
     Deelnemer_ongelijk_aan_3 = {}
     for deelnemer in df['Bewoner']:
         gangen = df[df['Bewoner']==deelnemer][['Voor','Hoofd','Na']].values[0]
@@ -209,99 +218,102 @@ def Constraints(df,dataset):
     if len(Deelnemer_ongelijk_aan_3) > 0:
         print('Er wordt niet voldaan aan Constraint 1')
         
-    ## Constraint 2
+    # Constraint 2
     
+    # Er wordt gekeken of op elk adres maar één soort gang wordt bereid.
     set_adres = set(df['Huisadres'])
     for adres in set_adres:
         if ( len( set( df[ df['Huisadres']==adres ]['kookt'].values ) )) != 1:
             print('Er wordt niet voldaan aan Constraint 2')
 
-    ## Constraint 3
+    # Constraint 3
     
+    # Er wordt gekeken of elke bewoner gedurende de gang die hij/zij bereidt aanwezig is op zijn/haar adres.
     Checklijst = []
     df_kokend = df.dropna(subset=['kookt'])
     for deelnemer in range(len(df_kokend)):
         gang = df_kokend.iloc[deelnemer]['kookt']
-        lhs = df_kokend.iloc[deelnemer][gang]
-        rhs = df_kokend.iloc[deelnemer]['Huisadres']
-        if lhs != rhs:
+        adressen_deelnemer1 = df_kokend.iloc[deelnemer][gang]
+        adressen_deelnemer2 = df_kokend.iloc[deelnemer]['Huisadres']
+        if adressen_deelnemer1 != adressen_deelnemer2:
             Checklijst.append(df_kokend.iloc[deelnemer]['Bewoner'])
     if len(Checklijst) > 0:
         print('Er wordt niet voldaan aan Constraint 3') 
         
-    ## Constraint 4
+    # Constraint 4
     
+    # Er wordt gekeken of op elk huisadres dat een gang kookt, er niet te veel of te weinig aanwezigen zijn.  
     kokend = df.dropna(subset=['kookt'])
-    adres_count = {}
+    aantal_adressen = {}
     for index_bewoners, rij in kokend.iterrows():
-        if rij['Huisadres'] not in adres_count:
-            adres_count[rij['Huisadres']] = rij['aantal'] 
-    for a in adres_count:
-        lb = adressen[ adressen['Huisadres']== a ]['Min groepsgrootte'].values
-        ub = adressen[ adressen['Huisadres']== a ]['Max groepsgrootte'].values
-        if adres_count[a]>ub or adres_count[a]<lb:
+        if rij['Huisadres'] not in aantal_adressen:
+            aantal_adressen[rij['Huisadres']] = rij['aantal'] 
+    for adres in aantal_adressen:
+        minimum = adressen[ adressen['Huisadres']== adres ]['Min groepsgrootte'].values
+        maximum = adressen[ adressen['Huisadres']== adres ]['Max groepsgrootte'].values
+        if aantal_adressen[adres]>maximum or aantal_adressen[adres]<minimum:
             print('Er wordt niet voldaan aan Constraint 4')
     
-    ## Constraint 5
+    # Constraint 5
 
+    # Er wordt gekeken of de paren ten alle tijden bij elkaar blijven. 
     for paar,(d1,d2) in Paar.iterrows():
-        lhs = df[ df['Bewoner']==d1 ][ ['Voor','Hoofd','Na'] ].values.tolist()
-        rhs = df[ df['Bewoner']==d2 ][ ['Voor','Hoofd','Na'] ].values.tolist()
-        if lhs != rhs:
+        adressen_deelnemer1 = df[ df['Bewoner']==d1 ][ ['Voor','Hoofd','Na'] ].values.tolist()
+        adressen_deelnemer2 = df[ df['Bewoner']==d2 ][ ['Voor','Hoofd','Na'] ].values.tolist()
+        if adressen_deelnemer1 != adressen_deelnemer2:
             print('Er wordt niet voldaan aan Constraint 5')
-        break
 
 #------------------------------------------------------------------------------------
 
-def simulated_annealing(df, max_iterations=1200, start_temp=1200, alpha=0.999):
+def simulated_annealing(df, maximale_iteraties=1200, start_temperatuur=1200, alpha=0.999):
     '''
     Wens functie wordt hier gebruikt om de objective funtion te meten.
-    switch_addresses functie wordt hier gebruikt om de buuroplossing te vinden.
+    Switch_addresses functie wordt hier gebruikt om de buuroplossing te vinden.
 
-    returnt een nieuwe df met verwisselde waarde en zijn bijbehorende objective function waarde.
+    Returnt een nieuwe df met verwisselde waarde en haar bijbehorende objective function waarde.
     '''
-    current_df = df.copy()
-    current_cost = Wens(current_df,kookte,adressen,buren,tafelgenoot)  # Aangenomen dat je Wens functie het totale aantal wensen retourneert dat niet wordt voldaan.
+    huidige_oplossing = df.copy()
+    huidige_kosten = Wens(huidige_oplossing,kookte,adressen,buren,tafelgenoot) 
     
-    best_df = current_df.copy()
-    best_cost = current_cost
+    beste_oplossing = huidige_oplossing.copy()
+    beste_kosten = huidige_kosten
 
-    temp = start_temp
-    y_bestcost = []
-    z_currentcost = []
-    x = list(range(max_iterations))
-    for iteration in range(max_iterations):
-        new_df = switch_addresses(current_df, paar)
-        new_cost = Wens(new_df,kookte,adressen,buren,tafelgenoot)
+    temperatuur = start_temperatuur
+    lijst_beste_kosten = []
+    lijst_huidige_kosten = []
+    aantal_iteraties = list(range(maximale_iteraties))
+    for iteraties in range(maximale_iteraties):
+        nieuwe_oplossing = switch_addresses(huidige_oplossing, paar)
+        nieuwe_kosten = Wens(nieuwe_oplossing,kookte,adressen,buren,tafelgenoot)
         
-        cost_diff = new_cost - current_cost
+        verschil_kosten = nieuwe_kosten - huidige_kosten
         
-        if cost_diff < 0 or random.uniform(0, 1) < math.exp(-cost_diff / temp):
-            current_df = new_df
-            current_cost = new_cost
+        if verschil_kosten < 0 or random.uniform(0, 1) < math.exp(-verschil_kosten / temperatuur):
+            huidige_oplossing = nieuwe_oplossing
+            huidige_kosten = nieuwe_kosten
             
-            if current_cost < best_cost:
-                best_df = current_df.copy()
-                best_cost = current_cost
+            if huidige_kosten < beste_kosten:
+                beste_oplossing = huidige_oplossing.copy()
+                beste_kosten = huidige_kosten
         
-        temp *= alpha  # Vermindering van de temperatuur
-        y_bestcost.append(best_cost)
-        z_currentcost.append(current_cost)
-        print(f'iteratie = {iteration}, cost = {best_cost}')
-    plt.plot(x,y_bestcost,label='Bestkost')
-    plt.plot(x,z_currentcost,color='r',label='Buurkost')
+        temperatuur *= alpha  # Vermindering van de temperatuur
+        lijst_beste_kosten.append(beste_kosten)
+        lijst_huidige_kosten.append(huidige_kosten)
+        print(f'iteratie = {iteraties}, cost = {beste_kosten}')
+    plt.plot(aantal_iteraties,lijst_beste_kosten,label='Bestkost')
+    plt.plot(aantal_iteraties,lijst_huidige_kosten,color='r',label='Buurkost')
     plt.xlabel('Iteraties')
     plt.ylabel('Objective function')
     plt.legend(loc='upper right')
     plt.title('Simulated Annealing')
     plt.grid(True)
     plt.show()
-    return best_df, best_cost
+    return beste_oplossing, beste_kosten
 
 
 
-result1, cost1 = simulated_annealing(df,max_iterations=2000)
-result2, cost2 = simulated_annealing(df,max_iterations=2000)
+result1, cost1 = simulated_annealing(df,maximale_iteraties=2000)
+result2, cost2 = simulated_annealing(df,maximale_iteraties=2000)
 # result3,cost3 = simulated_annealing(df,max_iterations=2000)
 # result4,cost4 = simulated_annealing(df,max_iterations=2000)
 # result5,cost5 = simulated_annealing(df,max_iterations=2000)
