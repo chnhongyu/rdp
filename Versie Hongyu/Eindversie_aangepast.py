@@ -28,8 +28,9 @@ def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
     Vervolgens neemt hij de index voor twee deelnemers.
     Er wordt rekening gehouden met welke gang de deelnemer voor gaat bereiden.
     Die adres wordt niet geselecteerd om te wisselen.
+    Zodat constraint 3 niet wordt overschreden.
 
-    Paar houden we hier buiten beschouwing. Zij worden niet verwisselt.
+    Paar houden we hier buiten beschouwing vanwegen feasiblity. Zij worden niet verwisselt.
     '''
     random_gang = random.choice(gangen)
 
@@ -166,11 +167,12 @@ def Wens(df,kookte,adressen,buren,tafelgenoot):
 
     Returnt een parameter.
     '''
-    resultaat_wens1 = 3 * Wens1(df)
-    resultaat_wens2 = 9 * Wens2(df,kookte)
-    resultaat_wens3 = 6 * Wens3(df,adressen)
-    resultaat_wens4 = 1 * Wens4(df,buren)
+    resultaat_wens1 = 50 * Wens1(df)
+    resultaat_wens2 = 10 * Wens2(df,kookte)
+    resultaat_wens3 = 5 * Wens3(df,adressen)
+    resultaat_wens4 = 0.5 * Wens4(df,buren)
     resultaat_wens5 = 1 * Wens5(df,tafelgenoot)
+
     
     totaal = resultaat_wens1 + resultaat_wens2 + resultaat_wens3 + resultaat_wens4 + resultaat_wens5
     totaal = totaal
@@ -251,7 +253,13 @@ def Constraints(df,dataset):
 
 #------------------------------------------------------------------------------------
 
-def simulated_annealing(df, max_iterations=1200, start_temp=10000, alpha=0.9995):
+def simulated_annealing(df, max_iterations=1200, start_temp=1200, alpha=0.999):
+    '''
+    Wens functie wordt hier gebruikt om de objective funtion te meten.
+    switch_addresses functie wordt hier gebruikt om de buuroplossing te vinden.
+
+    returnt een nieuwe df met verwisselde waarde en zijn bijbehorende objective function waarde.
+    '''
     current_df = df.copy()
     current_cost = Wens(current_df,kookte,adressen,buren,tafelgenoot)  # Aangenomen dat je Wens functie het totale aantal wensen retourneert dat niet wordt voldaan.
     
@@ -290,7 +298,21 @@ def simulated_annealing(df, max_iterations=1200, start_temp=10000, alpha=0.9995)
     plt.show()
     return best_df, best_cost
 
-result_df, result_cost = simulated_annealing(df)
 
-print(result_cost,result_df)
-print(Constraints(result_df,dataset))
+
+result1, cost1 = simulated_annealing(df,max_iterations=2000)
+result2, cost2 = simulated_annealing(df,max_iterations=2000)
+# result3,cost3 = simulated_annealing(df,max_iterations=2000)
+# result4,cost4 = simulated_annealing(df,max_iterations=2000)
+# result5,cost5 = simulated_annealing(df,max_iterations=2000)
+# result6,cost6 = simulated_annealing(df,max_iterations=2000)
+
+print(cost1,cost2)
+# cost4,cost5,cost6
+
+result1.to_excel('Resultaat1.xlsx',index=False)
+result2.to_excel('Resultaat2.xlsx',index=False)
+# result3.to_excel('Resultaat3.xlsx',index=False)
+# result4.to_excel('Resultaat4.xlsx',index=False)
+# result5.to_excel('Resultaat5.xlsx',index=False)
+# result6.to_excel('Resultaat6.xlsx',index=False)
