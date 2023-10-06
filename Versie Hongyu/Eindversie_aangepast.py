@@ -1,5 +1,5 @@
+# Importeren libraries 
 import pandas as pd
-import numpy as np
 import random
 import math
 import matplotlib.pyplot as plt
@@ -83,19 +83,21 @@ def Wens1(df):
     '''
     deelnemers_adressen = {}
     
-    # 1. Creëer een dictionary met de adressen voor elke deelnemer
+    # Creëer een dictionary met de adressen voor elke deelnemer
     for _, rij in df.iterrows():
         deelnemers_adressen[rij['Bewoner']] = [rij['Voor'], rij['Hoofd'], rij['Na']]
         
-    # 2. Vergelijk de lijsten om te zien hoe vaak deelnemers dezelfde adressen hebben
+    # Vergelijk de lijsten om te zien hoe vaak deelnemers dezelfde adressen hebben
     aantal_fouten = 0
     deelnemers = list(deelnemers_adressen.keys())
 
     for i in range(len(deelnemers)):
         for j in range(i+1, len(deelnemers)):
+            
             # Tel hoeveel adressen de twee deelnemers gemeen hebben
             overeenkomende_adressen = len(set(deelnemers_adressen[deelnemers[i]]) & set(deelnemers_adressen[deelnemers[j]]))
             if overeenkomende_adressen > 1:
+                
                 # Als ze op meer dan 1 adres gemeenschappelijk eten, tel het op
                 aantal_fouten += overeenkomende_adressen - 1
 
@@ -108,7 +110,10 @@ def Wens2(df,kookte):
     Wens2 gaat kijken hoevaak in de df, de wens is overschreden.
     Returnt een parameter.
     '''
+    # Maak een dataframe waarbij wordt gekeken wie hetzelfde kookt als vorig jaar
     df_koken_hetzelfde = df.merge(kookte, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Gang'], how='inner')
+    
+    # Kijk of die gang 'Hoofd' is en zo ja tel hoe vaak dit voorkomt
     df_koken_hoofdgerecht = df_koken_hetzelfde[df_koken_hetzelfde['Gang'] == 'Hoofd']
     aantal_fouten = df_koken_hoofdgerecht['Huisadres'].nunique()
     return aantal_fouten
@@ -120,7 +125,10 @@ def Wens3(df,adressen):
     Wens3 gaat kijken hoevaak in de df, de wens is overschreden.
     Returnt een parameter.
     '''
+    # Maak eerst een dataframe met alle huisadressen die een voorkeur voor een gang hebben
     df_voorkeur = adressen.dropna(subset=['Voorkeur gang'])
+   
+    # Vergelijk of deze voorkeuren overeenkomen, zo niet tel hoe vaak dit voorkomt.
     df_voorkeur_hetzelfde = df.merge(df_voorkeur, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Voorkeur gang'], how='inner')
     aantal_fouten = len(df_voorkeur) - df_voorkeur_hetzelfde['Huisadres'].nunique()
     return aantal_fouten
@@ -132,15 +140,22 @@ def Wens4(df,buren):
     Wens5 gaat kijken hoevaak in de df, de wens is overschreden.
     Returnt een parameter.
     '''
+    # Voeg aan de dataframe buren een aantal kolommen toe. Dit zijn voor alle gangen de kolommen:
+    # Het adres van bewoner 1, het adres van bewoner 2 en of deze twee overeenkomen.
+    # Die laatste kolom bestaat uit 1 voor de buren die samen eten en een 0 anders. 
     buren['VoorBewoner1'] = buren['Bewoner1'].map(df.set_index('Bewoner')['Voor'])
     buren['VoorBewoner2'] = buren['Bewoner2'].map(df.set_index('Bewoner')['Voor'])
     buren['VoorSamen'] = (buren['VoorBewoner1'] == buren['VoorBewoner2'])
+    
     buren['HoofdBewoner1'] = buren['Bewoner1'].map(df.set_index('Bewoner')['Hoofd'])
     buren['HoofdBewoner2'] = buren['Bewoner2'].map(df.set_index('Bewoner')['Hoofd'])
     buren['HoofdSamen'] = (buren['HoofdBewoner1'] == buren['HoofdBewoner2'])
+    
     buren['NaBewoner1'] = buren['Bewoner1'].map(df.set_index('Bewoner')['Na'])
     buren['NaBewoner2'] = buren['Bewoner2'].map(df.set_index('Bewoner')['Na'])
     buren['NaSamen'] = (buren['NaBewoner1'] == buren['NaBewoner2'])
+    
+    # Als je dit voor elke gang heb gedaan tel je alles bij elkaar op en krijg je het aantal keer dat buren samen eten.
     aantal_fouten = buren['VoorSamen'].sum() + buren['HoofdSamen'].sum() + buren['NaSamen'].sum()
     return aantal_fouten
 
@@ -151,7 +166,7 @@ def Wens5(df1, tafelgenoot):
     Wens5 gaat kijken hoevaak in de df, de wens is overschreden.
     Returnt een parameter.
     '''
-    # Stap 1: Bepaal de tafelgenoten van dit jaar
+    # Bepaal de tafelgenoten van dit jaar
     def vind_tafelgenoten(gang):
         groepen = df1.groupby(gang)['Bewoner'].apply(list)
         tafelgenoten = []
@@ -162,7 +177,7 @@ def Wens5(df1, tafelgenoot):
     tafelgenoten_lijst = sum([vind_tafelgenoten(gang) for gang in ['Voor', 'Hoofd', 'Na']], [])
     tafelgenoten_df = pd.DataFrame(tafelgenoten_lijst, columns=['Bewoner1', 'Bewoner2'])
     
-    # Stap 2: Vergelijk de resultaten met tafelgenoot
+    # Vergelijk de resultaten met tafelgenoot
     df_overlap = pd.merge(tafelgenoten_df, tafelgenoot, how='inner', left_on=['Bewoner1', 'Bewoner2'], right_on=['Bewoner1', 'Bewoner2'])
     aantal_fouten = len(df_overlap)
     return aantal_fouten
@@ -171,8 +186,8 @@ def Wens5(df1, tafelgenoot):
 # Wensen bijelkaar
 def Wens(df,kookte,adressen,buren,tafelgenoot):
     '''
-    Wens functie sommeert alle wensen 1 tot en met 5 bijelkaar.
-    Vermenigvuldigd met een weging.
+    Wens functie sommeert alle wensen 1 tot en met 5 bij elkaar.
+    De wensen worden vermenigvuldigd met een weging.
 
     Returnt een parameter.
     '''
@@ -181,7 +196,6 @@ def Wens(df,kookte,adressen,buren,tafelgenoot):
     resultaat_wens3 = 5 * Wens3(df,adressen)
     resultaat_wens4 = 0.5 * Wens4(df,buren)
     resultaat_wens5 = 1 * Wens5(df,tafelgenoot)
-
     
     totaal = resultaat_wens1 + resultaat_wens2 + resultaat_wens3 + resultaat_wens4 + resultaat_wens5
 
@@ -191,9 +205,9 @@ def Wens(df,kookte,adressen,buren,tafelgenoot):
 # Constraint Check
 def Constraints(df,dataset):
     '''
-    Constraint functie gaat de df oplossing controleren of het voldoet aan de gegeven constraints uit de dataset.
+    Constraint functie gaat de oplossing controleren of die voldoet aan de gegeven constraints uit de dataset.
 
-    Als de df voldoet aan alle constraints, returnt de functie: None
+    Als de oplossing voldoet aan alle constraints, returnt de functie: None
     Als er iets niet wordt voldaan, dan returnt hij een print en bijbehorende constraint.
     '''
     
@@ -272,6 +286,7 @@ def simulated_annealing(df, maximale_iteraties=1200, start_temperatuur=1200, alp
 
     Returnt een nieuwe df met verwisselde waarde en haar bijbehorende objective function waarde.
     '''
+    # Maak een kopie van de huidige feasible solution en bereken daarmee de kosten
     huidige_oplossing = df.copy()
     huidige_kosten = Wens(huidige_oplossing,kookte,adressen,buren,tafelgenoot) 
     
@@ -279,27 +294,39 @@ def simulated_annealing(df, maximale_iteraties=1200, start_temperatuur=1200, alp
     beste_kosten = huidige_kosten
 
     temperatuur = start_temperatuur
+    
+    # Maak 2 lege lijsten voor het plotje
     lijst_beste_kosten = []
     lijst_huidige_kosten = []
     aantal_iteraties = list(range(maximale_iteraties))
+    
+    # Hier beginnen de iteraties en worden de adressen omgedraaid en de nieuwe kosten berekend
     for iteraties in range(maximale_iteraties):
         nieuwe_oplossing = switch_addresses(huidige_oplossing, paar)
         nieuwe_kosten = Wens(nieuwe_oplossing,kookte,adressen,buren,tafelgenoot)
         
         verschil_kosten = nieuwe_kosten - huidige_kosten
         
+        # De nieuwe oplossing wordt altijd geaccepteerd als hij beter is dan de huidige oplossing.
+        # Zo niet is er een kans dat de verslechtering alsnog wordt toegelaten.
         if verschil_kosten < 0 or random.uniform(0, 1) < math.exp(-verschil_kosten / temperatuur):
             huidige_oplossing = nieuwe_oplossing
             huidige_kosten = nieuwe_kosten
             
+            # Als het een beter oplossing is worden de huidige kosten ook de beste kosten 
             if huidige_kosten < beste_kosten:
                 beste_oplossing = huidige_oplossing.copy()
                 beste_kosten = huidige_kosten
         
-        temperatuur *= alpha  # Vermindering van de temperatuur
+        # Na een iteratie wordt telkens de temperatuur afgekoeld
+        temperatuur *= alpha
+          
         lijst_beste_kosten.append(beste_kosten)
         lijst_huidige_kosten.append(huidige_kosten)
+        
         print(f'iteratie = {iteraties}, cost = {beste_kosten}')
+        
+    # Hier worden alle resultaten gevisualiseerd    
     plt.plot(aantal_iteraties,lijst_beste_kosten,label='Bestkost')
     plt.plot(aantal_iteraties,lijst_huidige_kosten,color='r',label='Buurkost')
     plt.xlabel('Iteraties')
@@ -308,6 +335,7 @@ def simulated_annealing(df, maximale_iteraties=1200, start_temperatuur=1200, alp
     plt.title('Simulated Annealing')
     plt.grid(True)
     plt.show()
+    
     return beste_oplossing, beste_kosten
 
 
