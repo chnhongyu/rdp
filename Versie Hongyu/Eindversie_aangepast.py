@@ -343,7 +343,7 @@ resultaten = []
 kosten = []
 herhaling = 30
 for i in range(herhaling):
-    resultaat,kost = simulated_annealing(df,maximale_iteraties=100)
+    resultaat,kost = simulated_annealing(df,maximale_iteraties=6000)
     resultaten.append(resultaat)
     kosten.append(kost)
     bestandsnaam = f'Oplossing {i}.xlsx'
