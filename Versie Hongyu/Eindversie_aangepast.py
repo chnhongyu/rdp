@@ -72,9 +72,9 @@ def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
     return df
 
 
-# wens functies rekent alleen over df en returnt een cijfer
+# wens functies rekent alleen over df en returnt een parameter
 #------------------------------------------------------------------------------------
-#Wens1
+#Wens1 - Aantal herhalingen. Prioriteit 1
 def Wens1(df):
     '''
     Wens1 eist als input df, een feasible solution.
@@ -102,7 +102,7 @@ def Wens1(df):
 
     return repeated_meetings
 
-#Wens2
+#Wens2 - Hoofdgerecht vorig jaar. Prioriteit 2
 def Wens2(df,kookte):
     '''
     Wens2 eist als input df, een feasible solution. En df_kookte uit de dataset
@@ -114,14 +114,14 @@ def Wens2(df,kookte):
     wens2 = df_koken_hoofdgerecht['Huisadres'].nunique()
     return wens2
     
-## Wens 3
+## Wens 3 - Adres krijgt zijn opgegeven voorkeur. Prioriteit 3
 def Wens3(df,adressen):
     df_voorkeur = adressen.dropna(subset=['Voorkeur gang'])
     df_voorkeur_hetzelfde = df.merge(df_voorkeur, left_on=['Huisadres', 'kookt'], right_on=['Huisadres', 'Voorkeur gang'], how='inner')
     wens3 = len(df_voorkeur) - df_voorkeur_hetzelfde['Huisadres'].nunique()
     return wens3
     
-## Wens 4
+## Wens 4 - Aantal buren aan tafel. Prioriteit 5
 def Wens4(df,buren):
     buren['VoorBewoner1'] = buren['Bewoner1'].map(df.set_index('Bewoner')['Voor'])
     buren['VoorBewoner2'] = buren['Bewoner2'].map(df.set_index('Bewoner')['Voor'])
@@ -135,7 +135,7 @@ def Wens4(df,buren):
     wens4 = buren['VoorSamen'].sum() + buren['HoofdSamen'].sum() + buren['NaSamen'].sum()
     return wens4
 
-#Wens5
+#Wens5 - Tafelgenoot vorig jaar. Prioriteit 4
 def Wens5(df1, tafelgenoot):
     '''
     Wens5 eist als input df, een feasible solution. En df_tabelgenoot uit de dataset.
@@ -166,11 +166,11 @@ def Wens(df,kookte,adressen,buren,tafelgenoot):
 
     Returnt een parameter.
     '''
-    resultaat_wens1 = 2 * Wens1(df)
-    resultaat_wens2 = 10* Wens2(df,kookte)
-    resultaat_wens3 = 10* Wens3(df,adressen)
-    resultaat_wens4 = 3 * Wens4(df,buren)
-    resultaat_wens5 = Wens5(df,tafelgenoot)
+    resultaat_wens1 = 3 * Wens1(df)
+    resultaat_wens2 = 9 * Wens2(df,kookte)
+    resultaat_wens3 = 6 * Wens3(df,adressen)
+    resultaat_wens4 = 1 * Wens4(df,buren)
+    resultaat_wens5 = 1 * Wens5(df,tafelgenoot)
     
     totaal = resultaat_wens1 + resultaat_wens2 + resultaat_wens3 + resultaat_wens4 + resultaat_wens5
     totaal = totaal
