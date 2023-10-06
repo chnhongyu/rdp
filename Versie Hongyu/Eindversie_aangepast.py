@@ -327,32 +327,25 @@ def simulated_annealing(df, maximale_iteraties=1200, start_temperatuur=1200, alp
         print(f'iteratie = {iteraties}, cost = {beste_kosten}')
         
     # Hier worden alle resultaten gevisualiseerd    
-    plt.plot(aantal_iteraties,lijst_beste_kosten,label='Bestkost')
-    plt.plot(aantal_iteraties,lijst_huidige_kosten,color='r',label='Buurkost')
-    plt.xlabel('Iteraties')
-    plt.ylabel('Objective function')
-    plt.legend(loc='upper right')
-    plt.title('Simulated Annealing')
-    plt.grid(True)
-    plt.show()
+    # plt.plot(aantal_iteraties,lijst_beste_kosten,label='Bestkost')
+    # plt.plot(aantal_iteraties,lijst_huidige_kosten,color='r',label='Buurkost')
+    # plt.xlabel('Iteraties')
+    # plt.ylabel('Objective function')
+    # plt.legend(loc='upper right')
+    # plt.title('Simulated Annealing')
+    # plt.grid(True)
+    # plt.show()
     
     return beste_oplossing, beste_kosten
 
 
-
-result1, cost1 = simulated_annealing(df,maximale_iteraties=2000)
-result2, cost2 = simulated_annealing(df,maximale_iteraties=2000)
-# result3,cost3 = simulated_annealing(df,max_iterations=2000)
-# result4,cost4 = simulated_annealing(df,max_iterations=2000)
-# result5,cost5 = simulated_annealing(df,max_iterations=2000)
-# result6,cost6 = simulated_annealing(df,max_iterations=2000)
-
-print(cost1,cost2)
-# cost4,cost5,cost6
-
-result1.to_excel('Resultaat1.xlsx',index=False)
-result2.to_excel('Resultaat2.xlsx',index=False)
-# result3.to_excel('Resultaat3.xlsx',index=False)
-# result4.to_excel('Resultaat4.xlsx',index=False)
-# result5.to_excel('Resultaat5.xlsx',index=False)
-# result6.to_excel('Resultaat6.xlsx',index=False)
+resultaten = []
+kosten = []
+herhaling = 30
+for i in range(herhaling):
+    resultaat,kost = simulated_annealing(df,maximale_iteraties=100)
+    resultaten.append(resultaat)
+    kosten.append(kost)
+    bestandsnaam = f'Oplossing {i}.xlsx'
+    resultaat.to_excel(bestandsnaam, index=False)
+print(kosten)
