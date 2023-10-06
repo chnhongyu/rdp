@@ -17,9 +17,11 @@ tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header =
 # Feasible solution
 oplossing = pd.read_excel(oplossing1)
 
-# df staat voor df_oplossing!
+# df staat voor df_oplossing
 df = oplossing
-t = pd.read_excel('BesteOplossing1.xlsx')
+
+
+
 # functie voor adressen wisselen (SA)
 def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
     random_gang = random.choice(gangen)
@@ -213,7 +215,7 @@ def Constraints(Dataset, df_oplossing):
         rhs = df_oplossing[ df_oplossing['Bewoner']==d2 ][ ['Voor','Hoofd','Na'] ].values.tolist()
         if lhs != rhs:
             print('Er wordt niet voldaan aan Constraint 5')
-        continue 
+        break
 
 #-----------------------------
 
@@ -258,6 +260,3 @@ result_df, result_cost = simulated_annealing(df,dataset)
 print(result_cost,result_df)
 print(Constraints(dataset,result_df))
 print(Constraints(dataset,df))
-# print(result_df.loc[119])
-# print(result_df.loc[120])
-print(Wens(t,kookte,adressen,buren,tafelgenoot))

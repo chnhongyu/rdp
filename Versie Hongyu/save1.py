@@ -7,64 +7,60 @@ import math
 dataset = 'Running Dinner dataset 2023 v2.xlsx'
 oplossing1 = 'Running Dinner eerste oplossing 2023 v2.xlsx'
 
+bewoners = pd.read_excel(dataset,sheet_name='Bewoners')
+adressen = pd.read_excel(dataset,sheet_name='Adressen')
+paar = pd.read_excel(dataset,sheet_name='Paar blijft bij elkaar',header = 1)
+buren = pd.read_excel(dataset,sheet_name='Buren',header = 1)
+kookte = pd.read_excel(dataset,sheet_name='Kookte vorig jaar',header = 1)
+tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header = 1)
+
 # Feasible solution
 oplossing = pd.read_excel(oplossing1)
 
 # df staat voor df_oplossing!
 df = oplossing
-
+t = pd.read_excel('BesteOplossing1.xlsx')
 # functie voor adressen wisselen (SA)
-# Inclusief constraint 3 en 5. omdat deze wisseling allen 3 en 5 veranderd in feasiblity
-
 def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
     random_gang = random.choice(gangen)
 
     kokers_indices = df[df["kookt"] == random_gang].index.tolist()
-    niet_kokers_indices = df.index.difference(kokers_indices).tolist()
+    
+    # Maak een lijst van alle bewoners in de paren
+    bewoners_in_paren = df_paar['Bewoner1'].tolist() + df_paar['Bewoner2'].tolist()
+    
+    # Verkrijg indices van bewoners in paren
+    indices_in_paren = df[df['Bewoner'].isin(bewoners_in_paren)].index.tolist()
+
+    # Verwijder indices van bewoners die in een paar zitten en die koken
+    niet_kokers_indices = list(set(df.index) - set(kokers_indices) - set(indices_in_paren))
+
+    if not niet_kokers_indices:
+        print("Er zijn geen beschikbare niet-kokers die niet in een paar zitten.")
+        return df
 
     bewoner1_index = random.choice(niet_kokers_indices)
     bewoner1 = df.loc[bewoner1_index, "Bewoner"]
 
-    bewoner2 = None
-    if bewoner1 in df_paar['Bewoner1'].values:
-        bewoner2 = df_paar[df_paar['Bewoner1'] == bewoner1]['Bewoner2'].values[0]
-    elif bewoner1 in df_paar['Bewoner2'].values:
-        bewoner2 = df_paar[df_paar['Bewoner2'] == bewoner1]['Bewoner1'].values[0]
+    # Debug: print geselecteerde bewoner1
+    # print("Geselecteerde bewoner1:", bewoner1)
 
-    if bewoner2:
-        bewoner2_index = df[df["Bewoner"] == bewoner2].index[0]
-        
-        adresA = df.loc[bewoner1_index, random_gang]
-        
-        unieke_adressen = df[random_gang].unique().tolist()
-        unieke_adressen.remove(adresA)
+    beschikbare_indices = list(set(df.index) - set(kokers_indices) - set([bewoner1_index]) - set(indices_in_paren))
+    
+    if not beschikbare_indices:
+        print("Er zijn geen andere beschikbare niet-kokers om mee te wisselen.")
+        return df
 
-        adresB = random.choice(unieke_adressen)
-        bewoners_met_adresB_indices = df[df[random_gang] == adresB].index.tolist()
+    bewoner2_index = random.choice(beschikbare_indices)
+    bewoner2 = df.loc[bewoner2_index, "Bewoner"]
 
-        while len(bewoners_met_adresB_indices) < 2:
-            unieke_adressen.remove(adresB)
-            if not unieke_adressen:
-                print("Kan geen geldig adres vinden met minimaal 2 bewoners.")
-                return df
-            adresB = random.choice(unieke_adressen)
-            bewoners_met_adresB_indices = df[df[random_gang] == adresB].index.tolist()
+    # Debug: print geselecteerde bewoner2
+    # print("Geselecteerde bewoner2:", bewoner2)
 
-        random.shuffle(bewoners_met_adresB_indices)
-        bewoner3_index, bewoner4_index = bewoners_met_adresB_indices[:2]
-
-        df.loc[bewoner1_index, random_gang] = adresB
-        df.loc[bewoner2_index, random_gang] = adresB
-        df.loc[bewoner3_index, random_gang] = adresA
-        df.loc[bewoner4_index, random_gang] = adresA
-
-    else:
-        beschikbare_indices = df.index.difference(kokers_indices).difference([bewoner1_index]).tolist()
-        bewoner2_index = random.choice(beschikbare_indices)
-        adres1 = df.loc[bewoner1_index, random_gang]
-        adres2 = df.loc[bewoner2_index, random_gang]
-        df.loc[bewoner1_index, random_gang] = adres2
-        df.loc[bewoner2_index, random_gang] = adres1
+    adres1 = df.loc[bewoner1_index, random_gang]
+    adres2 = df.loc[bewoner2_index, random_gang]
+    df.loc[bewoner1_index, random_gang] = adres2
+    df.loc[bewoner2_index, random_gang] = adres1
 
     return df
 
@@ -142,13 +138,15 @@ def Wens5(df1, tafelgenoot):
 #-----------------------------
 #Wensen bijelkaar
 def Wens(df,kookte,adressen,buren,tafelgenoot):
-    resultaat_wens1 = Wens1(df)
-    resultaat_wens2 = Wens2(df,kookte)
-    resultaat_wens3 = Wens3(df,adressen)
-    resultaat_wens4 = Wens4(df,buren)
+    resultaat_wens1 = 2* Wens1(df)
+    resultaat_wens2 = 10* Wens2(df,kookte)
+    resultaat_wens3 = 10* Wens3(df,adressen)
+    resultaat_wens4 = 3* Wens4(df,buren)
     resultaat_wens5 = Wens5(df,tafelgenoot)
     
     totaal = resultaat_wens1 + resultaat_wens2 + resultaat_wens3 + resultaat_wens4 + resultaat_wens5
+    totaal = totaal/10
+
     return totaal
 
 #-----------------------------
@@ -219,7 +217,7 @@ def Constraints(Dataset, df_oplossing):
 
 #-----------------------------
 
-def simulated_annealing(df, dataset, max_iterations=400, start_temp=2000, alpha=0.995):
+def simulated_annealing(df, dataset, max_iterations=5000, start_temp=100000, alpha=0.9995):
     bewoners = pd.read_excel(dataset,sheet_name='Bewoners')
     adressen = pd.read_excel(dataset,sheet_name='Adressen')
     paar = pd.read_excel(dataset,sheet_name='Paar blijft bij elkaar',header = 1)
@@ -260,5 +258,6 @@ result_df, result_cost = simulated_annealing(df,dataset)
 print(result_cost,result_df)
 print(Constraints(dataset,result_df))
 print(Constraints(dataset,df))
-print(result_df.loc[119])
-print(result_df.loc[120])
+# print(result_df.loc[119])
+# print(result_df.loc[120])
+print(Wens(t,kookte,adressen,buren,tafelgenoot))
