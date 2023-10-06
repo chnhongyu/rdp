@@ -15,12 +15,7 @@ kookte = pd.read_excel(dataset,sheet_name='Kookte vorig jaar',header = 1)
 tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header = 1)
 
 # Feasible solution
-oplossing = pd.read_excel(oplossing1)
-
-# df staat voor df_oplossing
-df = oplossing
-
-
+df = pd.read_excel(oplossing1)
 
 # functie voor adressen wisselen (SA)
 def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
@@ -147,7 +142,7 @@ def Wens(df,kookte,adressen,buren,tafelgenoot):
     resultaat_wens5 = Wens5(df,tafelgenoot)
     
     totaal = resultaat_wens1 + resultaat_wens2 + resultaat_wens3 + resultaat_wens4 + resultaat_wens5
-    totaal = totaal/10
+    totaal = totaal
 
     return totaal
 
@@ -220,13 +215,6 @@ def Constraints(Dataset, df_oplossing):
 #-----------------------------
 
 def simulated_annealing(df, dataset, max_iterations=5000, start_temp=100000, alpha=0.9995):
-    bewoners = pd.read_excel(dataset,sheet_name='Bewoners')
-    adressen = pd.read_excel(dataset,sheet_name='Adressen')
-    paar = pd.read_excel(dataset,sheet_name='Paar blijft bij elkaar',header = 1)
-    buren = pd.read_excel(dataset,sheet_name='Buren',header = 1)
-    kookte = pd.read_excel(dataset,sheet_name='Kookte vorig jaar',header = 1)
-    tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header = 1)
-
     current_df = df.copy()
     current_cost = Wens(current_df,kookte,adressen,buren,tafelgenoot)  # Aangenomen dat je Wens functie het totale aantal wensen retourneert dat niet wordt voldaan.
     
@@ -255,7 +243,6 @@ def simulated_annealing(df, dataset, max_iterations=5000, start_temp=100000, alp
     return best_df, best_cost
 
 result_df, result_cost = simulated_annealing(df,dataset)
-
 
 print(result_cost,result_df)
 print(Constraints(dataset,result_df))
