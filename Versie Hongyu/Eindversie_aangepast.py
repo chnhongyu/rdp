@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 # Inlezen dataset en feasible solution
 dataset = 'Running Dinner dataset 2023 v2.xlsx'
 oplossing1 = 'Running Dinner eerste oplossing 2023 v2.xlsx'
+oplossing2 = 'Running Dinner tweede oplossing 2023 v2.xlsx'
 
 bewoners = pd.read_excel(dataset,sheet_name='Bewoners')
 adressen = pd.read_excel(dataset,sheet_name='Adressen')
@@ -16,7 +17,8 @@ kookte = pd.read_excel(dataset,sheet_name='Kookte vorig jaar',header = 1)
 tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header = 1)
 
 # Feasible solution
-df = pd.read_excel(oplossing1)
+df1 = pd.read_excel(oplossing1)
+df2 = pd.read_excel(oplossing2)
 
 # functie voor adressen wisselen (SA)
 def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
@@ -284,7 +286,7 @@ def simulated_annealing(df, maximale_iteraties=1200, start_temperatuur=1200, alp
     Wens functie wordt hier gebruikt om de objective funtion te meten.
     Switch_addresses functie wordt hier gebruikt om de buuroplossing te vinden.
 
-    Returnt een nieuwe df met verwisselde waarde en haar bijbehorende objective function waarde.
+    Returnt twee waardes, een nieuwe df met verwisselde waarde en haar bijbehorende objective function waarde.
     '''
     # Maak een kopie van de huidige feasible solution en bereken daarmee de kosten
     huidige_oplossing = df.copy()
@@ -327,25 +329,29 @@ def simulated_annealing(df, maximale_iteraties=1200, start_temperatuur=1200, alp
         print(f'iteratie = {iteraties}, cost = {beste_kosten}')
         
     # Hier worden alle resultaten gevisualiseerd    
-    # plt.plot(aantal_iteraties,lijst_beste_kosten,label='Bestkost')
-    # plt.plot(aantal_iteraties,lijst_huidige_kosten,color='r',label='Buurkost')
-    # plt.xlabel('Iteraties')
-    # plt.ylabel('Objective function')
-    # plt.legend(loc='upper right')
-    # plt.title('Simulated Annealing')
-    # plt.grid(True)
-    # plt.show()
+    plt.plot(aantal_iteraties,lijst_beste_kosten,label='Bestkost')
+    plt.plot(aantal_iteraties,lijst_huidige_kosten,color='r',label='Buurkost')
+    plt.xlabel('Iteraties')
+    plt.ylabel('Objective function')
+    plt.legend(loc='upper right')
+    plt.title('Simulated Annealing')
+    plt.grid(True)
+    plt.show()
     
     return beste_oplossing, beste_kosten
 
+# Proces vaker uitvoeren in een for loop
+# Resultaten opslaan in excel
+# resultaten = []
+# kosten = []
+# herhaling = 10
+# for i in range(herhaling):
+#     resultaat,kost = simulated_annealing(df1,maximale_iteraties=20000)
+#     resultaten.append(resultaat)
+#     kosten.append(kost)
+#     bestandsnaam = f'Oplossing {i}.xlsx'
+#     resultaat.to_excel(bestandsnaam, index=False)
+# print(kosten)
 
-resultaten = []
-kosten = []
-herhaling = 30
-for i in range(herhaling):
-    resultaat,kost = simulated_annealing(df,maximale_iteraties=6000)
-    resultaten.append(resultaat)
-    kosten.append(kost)
-    bestandsnaam = f'Oplossing {i}.xlsx'
-    resultaat.to_excel(bestandsnaam, index=False)
-print(kosten)
+res,kos = simulated_annealing(df1, maximale_iteraties=120000)
+res.to_excel('Oplossing 1.xlsx')
