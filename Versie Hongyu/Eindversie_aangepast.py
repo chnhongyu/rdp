@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 # Inlezen dataset en feasible solution
 dataset = 'Running Dinner dataset 2023 v2.xlsx'
 oplossing1 = 'Running Dinner eerste oplossing 2023 v2.xlsx'
+oplossing2 = 'Running Dinner tweede oplossing 2023 v2.xlsx'
 
 bewoners = pd.read_excel(dataset,sheet_name='Bewoners')
 adressen = pd.read_excel(dataset,sheet_name='Adressen')
@@ -16,7 +17,8 @@ kookte = pd.read_excel(dataset,sheet_name='Kookte vorig jaar',header = 1)
 tafelgenoot = pd.read_excel(dataset,sheet_name='Tafelgenoot vorig jaar',header = 1)
 
 # Feasible solution
-df = pd.read_excel(oplossing1)
+df1 = pd.read_excel(oplossing1)
+df2 = pd.read_excel(oplossing2)
 
 # functie voor adressen wisselen (SA)
 def switch_addresses(df, df_paar, gangen=["Voor", "Hoofd", "Na"]):
@@ -284,7 +286,7 @@ def simulated_annealing(df, maximale_iteraties=1200, start_temperatuur=1200, alp
     Wens functie wordt hier gebruikt om de objective funtion te meten.
     Switch_addresses functie wordt hier gebruikt om de buuroplossing te vinden.
 
-    Returnt een nieuwe df met verwisselde waarde en haar bijbehorende objective function waarde.
+    Returnt twee waardes, een nieuwe df met verwisselde waarde en haar bijbehorende objective function waarde.
     '''
     # Maak een kopie van de huidige feasible solution en bereken daarmee de kosten
     huidige_oplossing = df.copy()
@@ -338,21 +340,19 @@ def simulated_annealing(df, maximale_iteraties=1200, start_temperatuur=1200, alp
     
     return beste_oplossing, beste_kosten
 
+# Proces vaker uitvoeren in een for loop
+# Resultaten opslaan in excel
+# resultaten = []
+# kosten = []
+# herhaling = 10
+# for i in range(herhaling):
+#     resultaat,kost = simulated_annealing(df1,maximale_iteraties=20000)
+#     resultaten.append(resultaat)
+#     kosten.append(kost)
+#     bestandsnaam = f'Oplossing {i}.xlsx'
+#     resultaat.to_excel(bestandsnaam, index=False)
+# print(kosten)
 
-
-result1, cost1 = simulated_annealing(df,maximale_iteraties=2000)
-result2, cost2 = simulated_annealing(df,maximale_iteraties=2000)
-# result3,cost3 = simulated_annealing(df,max_iterations=2000)
-# result4,cost4 = simulated_annealing(df,max_iterations=2000)
-# result5,cost5 = simulated_annealing(df,max_iterations=2000)
-# result6,cost6 = simulated_annealing(df,max_iterations=2000)
-
-print(cost1,cost2)
-# cost4,cost5,cost6
-
-result1.to_excel('Resultaat1.xlsx',index=False)
-result2.to_excel('Resultaat2.xlsx',index=False)
-# result3.to_excel('Resultaat3.xlsx',index=False)
-# result4.to_excel('Resultaat4.xlsx',index=False)
-# result5.to_excel('Resultaat5.xlsx',index=False)
-# result6.to_excel('Resultaat6.xlsx',index=False)
+# Of een keer hoge iteratie
+res,kos = simulated_annealing(df1, maximale_iteraties=120000)
+res.to_excel('Oplossing 1.xlsx',index=False)
