@@ -354,5 +354,5 @@ def simulated_annealing(df, maximale_iteraties=1200, start_temperatuur=1200, alp
 # print(kosten)
 
 # Of een keer hoge iteratie
-res,kos = simulated_annealing(df1, maximale_iteraties=120000)
+res,kos = simulated_annealing(df1, maximale_iteraties=1000000,start_temperatuur=50000,alpha=0.9995)
 res.to_excel('Oplossing 1.xlsx',index=False)
